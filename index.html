@@ -20,7 +20,7 @@
         /* 平滑滾動 */
         html { scroll-behavior: smooth; }
 
-        /* 行動端網格微調：確保圖片比例一致 */
+        /* 圖片比例 */
         .book-card-aspect { aspect-ratio: 2/3; }
 
         /* 背景模糊動畫 */
@@ -34,144 +34,202 @@
             50% { opacity: .5; }
         }
         .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        /* 音樂波紋動畫 */
+        .music-bar {
+            width: 2px;
+            height: 12px;
+            background: #fde68a;
+            margin: 0 1px;
+            animation: music-wave 1s ease-in-out infinite;
+            display: inline-block;
+        }
+        .music-bar:nth-child(2) { animation-delay: 0.2s; }
+        .music-bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes music-wave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+
+        /* 進入頁面覆蓋層 */
+        #entrance-overlay {
+            background-image: radial-gradient(circle at center, #292524 0%, #0c0a09 100%);
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 transition-colors duration-500 overflow-x-hidden">
 
-    <!-- 載入中畫面 -->
-    <div id="loading-screen" class="fixed inset-0 z-[100] bg-stone-50 flex flex-col items-center justify-center">
+    <!-- 進入頁面門檻 (解決自動播放限制) -->
+    <div id="entrance-overlay" class="fixed inset-0 z-[200] flex flex-col items-center justify-center text-white px-6">
+        <div class="mb-12 text-center animate-in fade-in zoom-in duration-1000">
+            <i data-lucide="book-marked" class="w-16 h-16 mx-auto mb-6 text-amber-200/60"></i>
+            <h1 class="text-4xl md:text-6xl font-serif font-bold tracking-[0.3em] mb-4">數位書櫃</h1>
+            <p class="text-stone-400 tracking-[0.5em] font-light text-sm md:text-base">VISUALIZED TEACHING RESOURCES</p>
+        </div>
+        <button id="start-btn" class="group relative px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl">
+            <span class="relative z-10 text-lg tracking-[0.4em] font-serif group-hover:text-amber-200 transition-colors">開啟書卷，靜心閱讀</span>
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </button>
+        <p class="mt-8 text-stone-500 text-xs tracking-widest animate-pulse italic">點擊按鈕開啟沉浸式配樂</p>
+    </div>
+
+    <!-- 載入中畫面 (內部跳轉時使用) -->
+    <div id="loading-screen" class="fixed inset-0 z-[100] bg-stone-50 hidden flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-stone-200 border-t-stone-800 rounded-full animate-spin mb-4"></div>
         <p class="font-serif tracking-widest text-lg text-stone-600">載入書卷中...</p>
     </div>
 
+    <!-- 音訊資源 -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2025/06/06/audio_cd7be0eafc.mp3?filename=tunetank-ambient-piano-music-348968.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-page">
+        <source src="https://cdn.pixabay.com/download/audio/2025/11/25/audio_26e276330f.mp3?filename=spinopel-turn-the-page-of-a-book-442331.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- Hero Section -->
-    <section id="hero" class="relative h-[55vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-stone-900 text-white">
+    <section id="hero" class="relative h-[65vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-stone-900 text-white">
         <div id="hero-image" class="absolute inset-0 opacity-30 bg-cover bg-center blur-sm scale-105 transition-all duration-1000"></div>
         <div class="relative z-10 text-center px-6 max-w-4xl">
             <i data-lucide="sparkles" class="mx-auto mb-4 md:mb-6 text-amber-200 opacity-80 w-6 h-6 md:w-8 md:h-8"></i>
-            <h2 id="hero-quote" class="text-xl md:text-4xl font-serif italic mb-6 md:mb-8 leading-relaxed tracking-wide px-4">
-                「正在翻閱知識的扉頁...」
-            </h2>
-            <div class="h-px w-16 md:w-24 bg-amber-200 mx-auto mb-4 opacity-50"></div>
-            <p id="hero-book" class="text-stone-300 font-light tracking-[0.15em] text-sm md:text-base"></p>
+            <h2 id="hero-quote" class="text-xl md:text-4xl font-serif italic mb-6 md:mb-10 leading-relaxed tracking-wide px-4"></h2>
+            <div class="h-px w-16 md:w-24 bg-amber-200 mx-auto mb-6 opacity-50"></div>
+            <p id="hero-book" class="text-stone-300 font-light tracking-[0.15em] text-sm md:text-base mb-12"></p>
+            
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-sm tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-lg">
+                    <i data-lucide="folder-open" class="w-4 h-4 text-amber-200"></i>
+                    瀏覽雲端資源
+                </a>
+                
+                <button id="music-toggle" class="inline-flex items-center gap-3 px-8 py-3.5 bg-amber-200/10 hover:bg-amber-200/20 backdrop-blur-md border border-amber-200/30 rounded-full text-sm tracking-[0.2em] transition-all hover:scale-105 active:scale-95 group">
+                    <div id="music-bars" class="hidden flex items-end h-4">
+                        <span class="music-bar"></span>
+                        <span class="music-bar"></span>
+                        <span class="music-bar"></span>
+                    </div>
+                    <i id="music-icon" data-lucide="music" class="w-4 h-4 text-amber-200"></i>
+                    <span id="music-text">開啟背景配樂</span>
+                </button>
+            </div>
         </div>
     </section>
 
     <!-- 控制列 -->
-    <div class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200">
-        <div class="max-w-7xl mx-auto flex flex-col gap-2 p-3 md:p-4">
-            <!-- 搜尋框 -->
-            <div class="relative w-full">
-                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4"></i>
-                <input 
-                    type="text" 
-                    id="search-input"
-                    placeholder="搜尋書名、作者或金句..."
-                    class="w-full pl-11 pr-4 py-2.5 bg-stone-100 border-transparent focus:bg-white border focus:border-stone-300 rounded-xl focus:outline-none transition-all text-sm appearance-none"
-                >
+    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col gap-3 p-3 md:p-5">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="relative w-full md:w-96">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 w-5 h-5"></i>
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="搜尋書名、作者或關鍵字..."
+                        class="w-full pl-12 pr-4 py-3 bg-stone-100 border-transparent focus:bg-white border focus:border-stone-300 rounded-2xl focus:outline-none transition-all text-sm md:text-base appearance-none shadow-inner"
+                    >
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="hidden md:flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors text-sm font-medium">
+                        <i data-lucide="cloud" class="w-4 h-4 text-stone-300"></i>
+                        雲端資源庫
+                    </a>
+                </div>
             </div>
             
-            <!-- 標籤篩選：水平滑動區 -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 <i data-lucide="filter" class="text-stone-400 flex-shrink-0 w-4 h-4 mr-1 hidden md:block"></i>
-                <div id="filter-container" class="flex gap-2">
-                    <!-- 動態生成標籤 -->
-                </div>
+                <div id="filter-container" class="flex gap-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- 書籍網格：行動端 2 欄 / 平板 3 欄 / 電腦 4 欄 -->
-    <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8 mb-20">
-        <div id="book-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-10">
-            <!-- 動態生成書籍卡片 -->
-        </div>
-        
-        <!-- 空狀態 -->
-        <div id="empty-state" class="hidden py-20 text-center text-stone-400">
-            <i data-lucide="book-open" class="mx-auto mb-4 opacity-20 w-12 h-12"></i>
-            <p>沒有找到相關書籍</p>
+    <!-- 書籍網格 -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8 mb-24">
+        <div id="book-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-12"></div>
+        <div id="empty-state" class="hidden py-32 text-center text-stone-400">
+            <i data-lucide="book-open" class="mx-auto mb-4 opacity-20 w-16 h-16"></i>
+            <p class="text-lg">沒有找到符合搜尋條件的書籍</p>
         </div>
     </main>
 
     <!-- 詳情彈窗 -->
     <div id="modal" class="fixed inset-0 z-50 hidden flex items-end md:items-center justify-center p-0 md:p-6">
-        <div id="modal-overlay" class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"></div>
-        <div class="relative bg-white w-full max-w-5xl h-[92vh] md:h-auto md:max-h-[90vh] rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in slide-in-from-bottom duration-300">
-            
-            <!-- 關閉按鈕 -->
-            <button id="modal-close" class="absolute top-4 right-4 z-50 p-2 bg-stone-900/10 hover:bg-stone-900/20 rounded-full text-stone-800 backdrop-blur-md">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            
-            <!-- 左側/上方：封面 -->
-            <div class="w-full h-1/3 md:h-auto md:w-1/3 bg-stone-200 flex-shrink-0">
-                <img id="modal-cover" src="" alt="" class="w-full h-full object-cover">
-            </div>
-
-            <!-- 右側/下方：內容區 -->
-            <div class="w-full md:w-2/3 p-6 md:p-10 overflow-y-auto bg-stone-50">
-                <div class="mb-6 md:mb-8">
-                    <span id="modal-unit" class="text-amber-600 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-2 block"></span>
-                    <h2 id="modal-title" class="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-2 leading-tight"></h2>
-                    <div class="flex flex-wrap items-center gap-3 text-stone-500 text-xs md:text-sm">
-                        <span class="flex items-center gap-1"><i data-lucide="user" class="w-3.5 h-3.5"></i> <span id="modal-author"></span></span>
-                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="modal-year"></span></span>
-                    </div>
+        <div id="modal-overlay" class="absolute inset-0 bg-stone-900/70 backdrop-blur-md"></div>
+        <div class="relative bg-white w-full max-w-6xl h-[92vh] md:h-auto md:max-h-[92vh] rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div class="flex flex-col md:flex-row h-full">
+                <button id="modal-close" class="absolute top-6 right-6 z-50 p-2.5 bg-stone-900/10 hover:bg-stone-900/20 rounded-full text-stone-800 backdrop-blur-md transition-all">
+                    <i data-lucide="x" class="w-6 h-6 md:w-8 md:h-8"></i>
+                </button>
+                
+                <div class="w-full h-[35%] md:h-auto md:w-[38%] bg-stone-200 flex-shrink-0">
+                    <img id="modal-cover" src="" alt="" class="w-full h-full object-cover">
                 </div>
 
-                <div class="space-y-6 md:space-y-8 text-stone-700">
-                    <!-- 金句 -->
-                    <div class="relative p-5 md:p-6 bg-stone-100 rounded-xl border-l-4 border-stone-800 italic">
-                        <i data-lucide="quote" class="absolute -top-3 -left-2 text-stone-300 w-6 h-6 md:w-8 md:h-8"></i>
-                        <p id="modal-quote" class="leading-relaxed font-serif text-base md:text-lg"></p>
+                <div class="w-full md:w-[62%] p-8 md:p-16 overflow-y-auto bg-stone-50">
+                    <div class="mb-10 md:mb-14">
+                        <span id="modal-unit" class="text-amber-600 text-sm md:text-lg font-bold tracking-[0.2em] uppercase mb-4 block"></span>
+                        <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-6 leading-[1.15]"></h2>
+                        <div class="flex flex-wrap items-center gap-8 text-stone-500 text-base md:text-2xl">
+                            <span class="flex items-center gap-2.5 font-light"><i data-lucide="user" class="w-5 h-5 md:w-7 md:h-7 text-stone-300"></i> <span id="modal-author"></span></span>
+                            <span class="flex items-center gap-2.5 font-light"><i data-lucide="calendar" class="w-5 h-5 md:w-7 md:h-7 text-stone-300"></i> <span id="modal-year"></span></span>
+                        </div>
                     </div>
 
-                    <!-- 核心論點 -->
-                    <section>
-                        <h4 class="flex items-center gap-2 text-stone-900 font-bold mb-3 border-b border-stone-200 pb-2 text-sm md:text-base">
-                            <i data-lucide="sparkles" class="text-amber-500 w-4 h-4"></i> 核心論點
-                        </h4>
-                        <p id="modal-argument" class="text-xs md:text-sm leading-relaxed text-stone-600"></p>
-                    </section>
+                    <div class="space-y-12 md:space-y-16 text-stone-700">
+                        <div class="relative p-8 md:p-14 bg-white rounded-[2rem] border-l-[16px] border-stone-800 shadow-xl italic group">
+                            <i data-lucide="quote" class="absolute -top-8 -left-6 text-stone-50 w-24 h-24 md:w-32 md:h-32 opacity-80 transition-transform group-hover:scale-110"></i>
+                            <p id="modal-quote" class="leading-relaxed font-serif text-2xl md:text-4xl relative z-10 text-stone-800"></p>
+                        </div>
 
-                    <!-- 理論與定位 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <section>
-                            <h4 class="text-stone-900 font-bold mb-2 text-[10px] md:text-xs uppercase tracking-wider">理論架構</h4>
-                            <p id="modal-framework" class="text-[11px] md:text-xs leading-relaxed text-stone-500 bg-stone-200/50 p-3 rounded-lg"></p>
+                            <h4 class="flex items-center gap-4 text-stone-900 font-bold mb-6 border-b-2 border-stone-200 pb-4 text-2xl md:text-3xl">
+                                <i data-lucide="sparkles" class="text-amber-500 w-7 h-7 md:w-9 md:h-9"></i> 核心論點
+                            </h4>
+                            <p id="modal-argument" class="text-xl md:text-3xl leading-[1.8] text-stone-600 font-light"></p>
                         </section>
-                        <section>
-                            <h4 class="text-stone-900 font-bold mb-2 text-[10px] md:text-xs uppercase tracking-wider">學術定位</h4>
-                            <p id="modal-position" class="text-[11px] md:text-xs leading-relaxed text-stone-500 bg-stone-200/50 p-3 rounded-lg"></p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                            <section>
+                                <h4 class="text-stone-900 font-bold mb-5 text-sm md:text-base uppercase tracking-[0.3em] opacity-40">理論架構</h4>
+                                <p id="modal-framework" class="text-lg md:text-2xl leading-relaxed text-stone-600 bg-stone-200/40 p-6 md:p-8 rounded-[1.5rem] border border-stone-200/50"></p>
+                            </section>
+                            <section>
+                                <h4 class="text-stone-900 font-bold mb-5 text-sm md:text-base uppercase tracking-[0.3em] opacity-40">學術定位</h4>
+                                <p id="modal-position" class="text-lg md:text-2xl leading-relaxed text-stone-600 bg-stone-200/40 p-6 md:p-8 rounded-[1.5rem] border border-stone-200/50"></p>
+                            </section>
+                        </div>
+
+                        <section class="bg-amber-50/70 p-10 md:p-16 rounded-[2.5rem] border border-amber-100/50 mb-20 shadow-inner">
+                            <h4 class="flex items-center gap-5 text-amber-900 font-bold mb-10 text-2xl md:text-4xl">
+                                <i data-lucide="graduation-cap" class="text-amber-700 w-10 h-10 md:w-14 md:h-14"></i> 教學應用建議
+                            </h4>
+                            <p id="modal-teaching" class="text-xl md:text-3xl leading-[1.8] whitespace-pre-wrap text-stone-800 font-normal"></p>
                         </section>
                     </div>
-
-                    <!-- 教學建議 -->
-                    <section class="bg-amber-50 p-5 md:p-6 rounded-xl border border-amber-100 mb-10">
-                        <h4 class="flex items-center gap-2 text-amber-900 font-bold mb-4 text-sm md:text-base">
-                            <i data-lucide="graduation-cap" class="text-amber-700 w-5 h-5"></i> 教學應用建議
-                        </h4>
-                        <p id="modal-teaching" class="text-xs md:text-sm leading-relaxed whitespace-pre-wrap text-stone-700"></p>
-                    </section>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 返回頂部 -->
-    <button id="back-to-top" class="fixed bottom-6 right-6 z-30 p-3 bg-stone-800 text-white rounded-full shadow-xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none">
-        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-30 p-4 bg-stone-800 text-white rounded-full shadow-2xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none hover:bg-stone-700">
+        <i data-lucide="arrow-up" class="w-8 h-8"></i>
     </button>
 
-    <!-- Footer -->
-    <footer class="py-12 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
-        <div class="flex items-center justify-center gap-4 mb-4">
-            <div class="w-8 h-px bg-stone-200"></div>
-            <i data-lucide="book-open" class="opacity-50 w-5 h-5"></i>
-            <div class="w-8 h-px bg-stone-200"></div>
+    <footer class="py-24 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
+        <div class="flex flex-col items-center gap-8">
+            <div class="flex items-center justify-center gap-6">
+                <div class="w-12 h-px bg-stone-200"></div>
+                <i data-lucide="book-open" class="opacity-50 w-6 h-6"></i>
+                <div class="w-12 h-px bg-stone-200"></div>
+            </div>
+            <p class="text-sm tracking-[0.3em] font-light">數位書櫃：視覺化教學資源系統</p>
+            <div class="flex gap-8">
+                <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="text-sm text-stone-400 hover:text-stone-700 underline underline-offset-8 decoration-stone-200 transition-colors">
+                    雲端資源檔案夾
+                </a>
+            </div>
         </div>
-        <p class="text-[10px] md:text-xs tracking-[0.2em] font-light">數位書櫃：視覺化教學資源系統</p>
     </footer>
 
     <script>
@@ -181,7 +239,37 @@
         let currentFilter = '全部';
         let currentSearch = '';
 
+        const bgMusic = document.getElementById('bg-music');
+        const pageSfx = document.getElementById('sfx-page');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicIcon = document.getElementById('music-icon');
+        const musicText = document.getElementById('music-text');
+        const musicBars = document.getElementById('music-bars');
+        let isPlaying = false;
+
         const initIcons = () => lucide.createIcons();
+
+        // 翻書音效觸發
+        const playPageSfx = () => {
+            pageSfx.currentTime = 0;
+            pageSfx.play().catch(e => console.log("SFX play failed"));
+        };
+
+        // 開場按鈕邏輯
+        document.getElementById('start-btn').onclick = () => {
+            // 啟動 BGM
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                musicIcon.classList.add('hidden');
+                musicBars.classList.remove('hidden');
+                musicText.textContent = "暫停背景配樂";
+            }).catch(e => console.log("BGM play failed"));
+
+            // 隱藏入口層
+            document.getElementById('entrance-overlay').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            loadData();
+        };
 
         function parseCSV(text) {
             const rows = text.split('\n');
@@ -193,6 +281,7 @@
         }
 
         async function loadData() {
+            document.getElementById('loading-screen').classList.remove('hidden');
             try {
                 const response = await fetch(SHEET_CSV_URL);
                 const text = await response.text();
@@ -218,7 +307,7 @@
                 document.getElementById('loading-screen').classList.add('hidden');
             } catch (error) {
                 console.error("Error loading data:", error);
-                document.getElementById('loading-screen').innerHTML = `<p class='text-red-500'>資料載入失敗，請確認網路連線。</p>`;
+                document.getElementById('loading-screen').innerHTML = `<p class='text-red-500 text-center px-6 text-xl'>資料載入失敗，請確認網路連線。</p>`;
             }
         }
 
@@ -226,17 +315,18 @@
             if (allBooks.length === 0) return;
             const randomBook = allBooks[Math.floor(Math.random() * allBooks.length)];
             document.getElementById('hero-image').style.backgroundImage = `url('${randomBook.cover}')`;
-            document.getElementById('hero-quote').textContent = `「${randomBook.quote}」`;
+            document.getElementById('hero-quote').textContent = randomBook.quote;
             document.getElementById('hero-book').textContent = `—— 《${randomBook.title}》`;
         }
 
         function setupFilters() {
             const units = ['全部', ...new Set(allBooks.flatMap(b => b.teachingUnit.split(/[、,，]/).map(u => u.trim())).filter(u => u))];
             const container = document.getElementById('filter-container');
-            
+            container.innerHTML = ''; // 清除舊標籤
+
             units.forEach(unit => {
                 const btn = document.createElement('button');
-                btn.className = `filter-btn px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all border ${unit === '全部' ? 'bg-stone-800 text-white border-stone-800 shadow-md' : 'bg-white text-stone-500 border-stone-200 active:scale-95'}`;
+                btn.className = `filter-btn px-6 py-3 rounded-full text-xs md:text-sm whitespace-nowrap transition-all border ${unit === '全部' ? 'bg-stone-800 text-white border-stone-800 shadow-md' : 'bg-white text-stone-500 border-stone-200 active:scale-95'}`;
                 btn.textContent = unit;
                 btn.onclick = () => {
                     currentFilter = unit;
@@ -274,15 +364,15 @@
                     card.className = "group cursor-pointer flex flex-col";
                     card.onclick = () => openModal(book);
                     card.innerHTML = `
-                        <div class="relative book-card-aspect rounded-xl overflow-hidden shadow-sm md:shadow-lg transition-all duration-300 group-hover:-translate-y-1 bg-stone-200">
-                            <img src="${book.cover}" class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-105" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400'">
-                            <div class="absolute inset-0 bg-stone-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 text-center hidden md:flex">
-                                <p class="text-white text-xs font-serif italic leading-relaxed line-clamp-4">「${book.quote}」</p>
+                        <div class="relative book-card-aspect rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-sm md:shadow-2xl transition-all duration-500 group-hover:-translate-y-3 bg-stone-200">
+                            <img src="${book.cover}" class="w-full h-full object-cover transition-scale duration-700 group-hover:scale-110" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400'">
+                            <div class="absolute inset-0 bg-stone-900/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-8 text-center hidden md:flex">
+                                <p class="text-white text-sm font-serif italic leading-relaxed line-clamp-4">${book.quote}</p>
                             </div>
                         </div>
-                        <div class="mt-3 px-1">
-                            <h3 class="font-serif text-sm md:text-base font-bold text-stone-900 leading-snug group-hover:text-amber-700 transition-colors line-clamp-2">${book.title}</h3>
-                            <p class="text-stone-500 text-[10px] md:text-xs mt-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${book.author}</p>
+                        <div class="mt-6 px-1 text-center md:text-left">
+                            <h3 class="font-serif text-lg md:text-2xl font-bold text-stone-900 leading-tight group-hover:text-amber-700 transition-colors line-clamp-2">${book.title}</h3>
+                            <p class="text-stone-500 text-sm md:text-base mt-3 flex items-center justify-center md:justify-start gap-2"><i data-lucide="user" class="w-4 h-4 text-stone-300"></i> ${book.author}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -292,6 +382,7 @@
         }
 
         function openModal(book) {
+            playPageSfx(); // 播放翻書音效
             document.getElementById('modal-title').textContent = book.title;
             document.getElementById('modal-author').textContent = book.author;
             document.getElementById('modal-year').textContent = book.year;
@@ -309,11 +400,29 @@
         }
 
         function closeModal() {
+            playPageSfx(); // 播放翻書音效 (回到主選單)
             document.getElementById('modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
-        // 返回頂部功能
+        // 音樂控制
+        musicToggle.onclick = () => {
+            if (!isPlaying) {
+                bgMusic.play().then(() => {
+                    isPlaying = true;
+                    musicIcon.classList.add('hidden');
+                    musicBars.classList.remove('hidden');
+                    musicText.textContent = "暫停背景配樂";
+                }).catch(e => console.log("需互動後才能播放"));
+            } else {
+                bgMusic.pause();
+                isPlaying = false;
+                musicIcon.classList.remove('hidden');
+                musicBars.classList.add('hidden');
+                musicText.textContent = "開啟背景配樂";
+            }
+        };
+
         const bttBtn = document.getElementById('back-to-top');
         window.onscroll = () => {
             if (window.scrollY > 400) {
@@ -331,8 +440,10 @@
             renderBooks();
         };
 
+        // 禁止背景滾動
+        document.body.style.overflow = 'hidden';
+
         window.onload = () => {
-            loadData();
             initIcons();
         };
     </script>
