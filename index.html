@@ -28,13 +28,6 @@
             transition: background-image 0.8s ease-in-out;
         }
 
-        /* 骨架屏動畫 */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        
         /* 音樂波紋動畫 */
         .music-bar {
             width: 2px;
@@ -55,11 +48,31 @@
         #entrance-overlay {
             background-image: radial-gradient(circle at center, #292524 0%, #0c0a09 100%);
         }
+
+        /* 強化版滾動條樣式 (僅限彈窗) */
+        #modal-content-area {
+            scrollbar-gutter: stable; /* 預留滾動條空間，避免內容跳動 */
+        }
+        #modal-content-area::-webkit-scrollbar {
+            width: 10px; /* 加寬滾動條 */
+        }
+        #modal-content-area::-webkit-scrollbar-track {
+            background: #f5f5f4; /* 淺灰色軌道 */
+            border-radius: 0 0 10px 0;
+        }
+        #modal-content-area::-webkit-scrollbar-thumb {
+            background: #a8a29e; /* 深石色滑塊，更清晰 */
+            border-radius: 10px;
+            border: 2px solid #f5f5f4; /* 增加邊距讓滑塊更好看 */
+        }
+        #modal-content-area::-webkit-scrollbar-thumb:hover {
+            background: #78716c;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 transition-colors duration-500 overflow-x-hidden">
 
-    <!-- 進入頁面門檻 (解決自動播放限制) -->
+    <!-- 進入頁面門檻 -->
     <div id="entrance-overlay" class="fixed inset-0 z-[200] flex flex-col items-center justify-center text-white px-6">
         <div class="mb-12 text-center animate-in fade-in zoom-in duration-1000">
             <i data-lucide="book-marked" class="w-16 h-16 mx-auto mb-6 text-amber-200/60"></i>
@@ -70,20 +83,20 @@
             <span class="relative z-10 text-lg tracking-[0.4em] font-serif group-hover:text-amber-200 transition-colors">開啟書卷，靜心閱讀</span>
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </button>
-        <p class="mt-8 text-stone-500 text-xs tracking-widest animate-pulse italic">點擊按鈕開啟沉浸式配樂</p>
+        <p class="mt-8 text-stone-500 text-xs tracking-widest animate-pulse italic">點擊按鈕後將開始播放沉浸式配樂</p>
     </div>
 
-    <!-- 載入中畫面 (內部跳轉時使用) -->
+    <!-- 載入中畫面 -->
     <div id="loading-screen" class="fixed inset-0 z-[100] bg-stone-50 hidden flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-stone-200 border-t-stone-800 rounded-full animate-spin mb-4"></div>
         <p class="font-serif tracking-widest text-lg text-stone-600">載入書卷中...</p>
     </div>
 
     <!-- 音訊資源 -->
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop preload="auto">
         <source src="https://cdn.pixabay.com/download/audio/2025/06/06/audio_cd7be0eafc.mp3?filename=tunetank-ambient-piano-music-348968.mp3" type="audio/mpeg">
     </audio>
-    <audio id="sfx-page">
+    <audio id="sfx-page" preload="auto">
         <source src="https://cdn.pixabay.com/download/audio/2025/11/25/audio_26e276330f.mp3?filename=spinopel-turn-the-page-of-a-book-442331.mp3" type="audio/mpeg">
     </audio>
 
@@ -109,7 +122,7 @@
                         <span class="music-bar"></span>
                     </div>
                     <i id="music-icon" data-lucide="music" class="w-4 h-4 text-amber-200"></i>
-                    <span id="music-text">開啟背景配樂</span>
+                    <span id="music-text">暫停音樂</span>
                 </button>
             </div>
         </div>
@@ -145,7 +158,7 @@
     </div>
 
     <!-- 書籍網格 -->
-    <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8 mb-24">
+    <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8 mb-24 text-center md:text-left">
         <div id="book-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-12"></div>
         <div id="empty-state" class="hidden py-32 text-center text-stone-400">
             <i data-lucide="book-open" class="mx-auto mb-4 opacity-20 w-16 h-16"></i>
@@ -155,18 +168,22 @@
 
     <!-- 詳情彈窗 -->
     <div id="modal" class="fixed inset-0 z-50 hidden flex items-end md:items-center justify-center p-0 md:p-6">
-        <div id="modal-overlay" class="absolute inset-0 bg-stone-900/70 backdrop-blur-md"></div>
-        <div class="relative bg-white w-full max-w-6xl h-[92vh] md:h-auto md:max-h-[92vh] rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
+        <div id="modal-overlay" class="absolute inset-0 bg-stone-900/80 backdrop-blur-md"></div>
+        <!-- 修正：將 md:h-auto 改為 md:h-[85vh] 固定高度，確保觸發內部滾動條 -->
+        <div class="relative bg-white w-full max-w-6xl h-[95vh] md:h-[85vh] rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div class="flex flex-col md:flex-row h-full">
-                <button id="modal-close" class="absolute top-6 right-6 z-50 p-2.5 bg-stone-900/10 hover:bg-stone-900/20 rounded-full text-stone-800 backdrop-blur-md transition-all">
+                <!-- 關閉按鈕 -->
+                <button id="modal-close" class="absolute top-6 right-6 z-50 p-2.5 bg-stone-900/10 hover:bg-stone-900/20 rounded-full text-stone-800 backdrop-blur-md transition-all shadow-sm">
                     <i data-lucide="x" class="w-6 h-6 md:w-8 md:h-8"></i>
                 </button>
                 
-                <div class="w-full h-[35%] md:h-auto md:w-[38%] bg-stone-200 flex-shrink-0">
+                <!-- 左側封面 (固定比例) -->
+                <div class="w-full h-[30%] md:h-auto md:w-[38%] bg-stone-200 flex-shrink-0">
                     <img id="modal-cover" src="" alt="" class="w-full h-full object-cover">
                 </div>
 
-                <div class="w-full md:w-[62%] p-8 md:p-16 overflow-y-auto bg-stone-50">
+                <!-- 右側內容區 (獨立滾動) -->
+                <div id="modal-content-area" class="w-full md:w-[62%] p-8 md:p-16 overflow-y-auto bg-stone-50 h-full">
                     <div class="mb-10 md:mb-14">
                         <span id="modal-unit" class="text-amber-600 text-sm md:text-lg font-bold tracking-[0.2em] uppercase mb-4 block"></span>
                         <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-6 leading-[1.15]"></h2>
@@ -257,7 +274,6 @@
 
         // 開場按鈕邏輯
         document.getElementById('start-btn').onclick = () => {
-            // 啟動 BGM
             bgMusic.play().then(() => {
                 isPlaying = true;
                 musicIcon.classList.add('hidden');
@@ -265,11 +281,19 @@
                 musicText.textContent = "暫停背景配樂";
             }).catch(e => console.log("BGM play failed"));
 
-            // 隱藏入口層
             document.getElementById('entrance-overlay').classList.add('hidden');
             document.body.style.overflow = 'auto';
             loadData();
         };
+
+        // 離開頁面停止音樂 (Visibility API)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (isPlaying) bgMusic.pause();
+            } else {
+                if (isPlaying) bgMusic.play();
+            }
+        });
 
         function parseCSV(text) {
             const rows = text.split('\n');
@@ -322,7 +346,7 @@
         function setupFilters() {
             const units = ['全部', ...new Set(allBooks.flatMap(b => b.teachingUnit.split(/[、,，]/).map(u => u.trim())).filter(u => u))];
             const container = document.getElementById('filter-container');
-            container.innerHTML = ''; // 清除舊標籤
+            container.innerHTML = ''; 
 
             units.forEach(unit => {
                 const btn = document.createElement('button');
@@ -370,7 +394,7 @@
                                 <p class="text-white text-sm font-serif italic leading-relaxed line-clamp-4">${book.quote}</p>
                             </div>
                         </div>
-                        <div class="mt-6 px-1 text-center md:text-left">
+                        <div class="mt-6 px-1">
                             <h3 class="font-serif text-lg md:text-2xl font-bold text-stone-900 leading-tight group-hover:text-amber-700 transition-colors line-clamp-2">${book.title}</h3>
                             <p class="text-stone-500 text-sm md:text-base mt-3 flex items-center justify-center md:justify-start gap-2"><i data-lucide="user" class="w-4 h-4 text-stone-300"></i> ${book.author}</p>
                         </div>
@@ -382,7 +406,7 @@
         }
 
         function openModal(book) {
-            playPageSfx(); // 播放翻書音效
+            playPageSfx(); 
             document.getElementById('modal-title').textContent = book.title;
             document.getElementById('modal-author').textContent = book.author;
             document.getElementById('modal-year').textContent = book.year;
@@ -396,11 +420,13 @@
             
             document.getElementById('modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // 開啟時重置滾動位置
+            document.getElementById('modal-content-area').scrollTop = 0;
             initIcons();
         }
 
         function closeModal() {
-            playPageSfx(); // 播放翻書音效 (回到主選單)
+            playPageSfx(); 
             document.getElementById('modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
@@ -440,7 +466,7 @@
             renderBooks();
         };
 
-        // 禁止背景滾動
+        // 預設禁止背景滾動 (直到進入)
         document.body.style.overflow = 'hidden';
 
         window.onload = () => {
