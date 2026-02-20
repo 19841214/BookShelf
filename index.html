@@ -1,0 +1,309 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, BookOpen, Quote, GraduationCap, Calendar, User, ChevronRight, X, Sparkles, Filter } from 'lucide-react';
+
+/**
+ * 書籍資料處理與展示組件
+ * 串接 Google Sheet CSV 格式
+ */
+
+const App = () => {
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [filterUnit, setFilterUnit] = useState('全部');
+  const [error, setError] = useState(null);
+
+  // Google Sheet 發布網址 (轉為 CSV 格式以利讀取)
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_cqaP-vZr1MW-RYFmbWsCD9FKEwRDXq8lHjI12Sl5z0VwfnvQgurnhE3PDVXrK1cqMRhaMLKVx9XG/pub?gid=1650364862&single=true&output=csv";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(SHEET_CSV_URL);
+        const csvText = await response.text();
+        
+        // 簡單的 CSV 解析 (處理逗號與引號)
+        const rows = csvText.split('\n').map(row => {
+          const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+          return matches ? matches.map(m => m.replace(/^"|"$/g, '')) : [];
+        });
+
+        // 排除標題列，映射到物件
+        const data = rows.slice(1).filter(row => row.length >= 5).map((row, index) => ({
+          id: index,
+          title: row[0] || '未知書名',
+          author: row[1] || '未知作者',
+          year: row[2] || '',
+          coreArgument: row[3] || '',
+          quote: row[4] || '',
+          framework: row[5] || '',
+          position: row[6] || '',
+          teachingUnit: row[7] || '未分類',
+          teachingApp: row[8] || '',
+          cover: row[9] || 'https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400', // 預設封面
+        }));
+
+        setBooks(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("無法載入書籍資料，請確認 Google Sheet 是否已公開發布為 CSV。");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 篩選邏輯
+  const filteredBooks = useMemo(() => {
+    return books.filter(book => {
+      const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            book.quote.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter = filterUnit === '全部' || book.teachingUnit.includes(filterUnit);
+      return matchesSearch && matchesFilter;
+    });
+  }, [books, searchTerm, filterUnit]);
+
+  // 提取所有教學單元供篩選
+  const units = useMemo(() => {
+    const allUnits = books.flatMap(b => b.teachingUnit.split(/[、,，]/).map(u => u.trim()));
+    return ['全部', ...new Set(allUnits.filter(u => u))];
+  }, [books]);
+
+  // 隨機金句 (視覺焦點)
+  const featuredQuote = useMemo(() => {
+    if (books.length === 0) return null;
+    return books[Math.floor(Math.random() * books.length)];
+  }, [books]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-stone-50 text-stone-600">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-800 mb-4"></div>
+        <p className="font-serif tracking-widest text-lg">載入書卷中...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-stone-50 font-sans text-stone-800 pb-20">
+      {/* Hero Section - 視覺焦點 (金句) */}
+      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-stone-900 text-white">
+        <div className="absolute inset-0 opacity-40">
+           <img 
+            src={featuredQuote?.cover || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1200"} 
+            className="w-full h-full object-cover blur-sm scale-105"
+            alt="background"
+          />
+        </div>
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <Sparkles className="mx-auto mb-6 text-amber-200 opacity-80" size={32} />
+          <h2 className="text-2xl md:text-4xl font-serif italic mb-8 leading-relaxed tracking-wide">
+            「{featuredQuote?.quote || "讀書是為了遇見更好的自己。"}」
+          </h2>
+          <div className="h-px w-24 bg-amber-200 mx-auto mb-4 opacity-50"></div>
+          <p className="text-stone-300 font-light tracking-[0.2em]">
+            —— 《{featuredQuote?.title}》
+          </p>
+        </div>
+      </section>
+
+      {/* 控制列 */}
+      <div className="sticky top-0 z-20 bg-stone-50/80 backdrop-blur-md border-b border-stone-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="搜尋書名、作者、或關鍵字..."
+              className="w-full pl-10 pr-4 py-2 bg-white border border-stone-200 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+            <Filter size={16} className="text-stone-400 flex-shrink-0" />
+            {units.slice(0, 6).map(unit => (
+              <button
+                key={unit}
+                onClick={() => setFilterUnit(unit)}
+                className={`px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors ${
+                  filterUnit === unit ? 'bg-stone-800 text-white' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'
+                }`}
+              >
+                {unit}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 書籍網格 */}
+      <main className="max-w-7xl mx-auto px-6 mt-12">
+        {error && (
+          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 text-center text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+          {filteredBooks.map((book) => (
+            <div 
+              key={book.id}
+              onClick={() => setSelectedBook(book)}
+              className="group cursor-pointer"
+            >
+              <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg transition-transform duration-500 group-hover:-translate-y-2 bg-stone-200">
+                <img 
+                  src={book.cover} 
+                  alt={book.title}
+                  className="w-full h-full object-cover transition-scale duration-700 group-hover:scale-110"
+                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400"; }}
+                />
+                {/* 懸停覆蓋層 */}
+                <div className="absolute inset-0 bg-stone-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-6 text-center">
+                  <p className="text-white text-sm font-serif italic leading-relaxed line-clamp-4">
+                    「{book.quote}」
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-1 text-center sm:text-left">
+                <h3 className="font-serif text-lg font-bold text-stone-900 leading-tight group-hover:text-amber-700 transition-colors">
+                  {book.title}
+                </h3>
+                <p className="text-stone-500 text-sm font-light flex items-center justify-center sm:justify-start gap-2">
+                  <User size={14} /> {book.author}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2 justify-center sm:justify-start">
+                  <span className="px-2 py-0.5 bg-stone-100 text-[10px] text-stone-500 rounded border border-stone-200 uppercase tracking-tighter">
+                    {book.year}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredBooks.length === 0 && (
+          <div className="py-20 text-center text-stone-400">
+            <BookOpen size={48} className="mx-auto mb-4 opacity-20" />
+            <p>暫無符合條件的書籍，請嘗試其他關鍵字。</p>
+          </div>
+        )}
+      </main>
+
+      {/* 詳情彈窗 (Detail Modal) */}
+      {selectedBook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+            onClick={() => setSelectedBook(null)}
+          ></div>
+          <div className="relative bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
+            <button 
+              onClick={() => setSelectedBook(null)}
+              className="absolute top-4 right-4 z-10 p-2 bg-white/20 hover:bg-white/40 rounded-full text-stone-800 md:text-stone-500"
+            >
+              <X size={20} />
+            </button>
+            
+            {/* 左側：封面 */}
+            <div className="w-full md:w-1/3 bg-stone-100">
+              <img 
+                src={selectedBook.cover} 
+                alt={selectedBook.title}
+                className="w-full h-full object-cover md:h-full"
+                onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400"; }}
+              />
+            </div>
+
+            {/* 右側：內容區 (可捲動) */}
+            <div className="w-full md:w-2/3 p-6 md:p-10 overflow-y-auto bg-stone-50">
+              <div className="mb-8">
+                <span className="text-amber-600 text-xs font-bold tracking-widest uppercase mb-2 block">
+                  {selectedBook.teachingUnit}
+                </span>
+                <h2 className="text-3xl font-serif font-bold text-stone-900 mb-2 leading-tight">
+                  {selectedBook.title}
+                </h2>
+                <div className="flex items-center gap-4 text-stone-500 text-sm">
+                  <span className="flex items-center gap-1"><User size={14} /> {selectedBook.author}</span>
+                  <span className="flex items-center gap-1"><Calendar size={14} /> {selectedBook.year}</span>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                {/* 金句區 */}
+                <div className="relative p-6 bg-stone-100 rounded-xl border-l-4 border-stone-800 italic">
+                  <Quote size={24} className="absolute -top-3 -left-3 text-stone-300" />
+                  <p className="text-stone-700 leading-relaxed font-serif text-lg">
+                    {selectedBook.quote}
+                  </p>
+                </div>
+
+                {/* 核心論點 */}
+                <section>
+                  <h4 className="flex items-center gap-2 text-stone-900 font-bold mb-3 border-b border-stone-200 pb-2">
+                    <Sparkles size={16} className="text-amber-500" /> 核心論點
+                  </h4>
+                  <p className="text-stone-600 leading-relaxed text-sm">
+                    {selectedBook.coreArgument}
+                  </p>
+                </section>
+
+                {/* 學術定位 & 理論架構 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <section>
+                    <h4 className="flex items-center gap-2 text-stone-900 font-bold mb-2 text-sm uppercase tracking-wider">
+                      理論架構
+                    </h4>
+                    <p className="text-stone-600 leading-relaxed text-xs">
+                      {selectedBook.framework}
+                    </p>
+                  </section>
+                  <section>
+                    <h4 className="flex items-center gap-2 text-stone-900 font-bold mb-2 text-sm uppercase tracking-wider">
+                      學術定位
+                    </h4>
+                    <p className="text-stone-600 leading-relaxed text-xs">
+                      {selectedBook.position}
+                    </p>
+                  </section>
+                </div>
+
+                {/* 教學應用 - 最重要 */}
+                <section className="bg-amber-50 p-6 rounded-xl border border-amber-100">
+                  <h4 className="flex items-center gap-2 text-amber-900 font-bold mb-4">
+                    <GraduationCap size={20} className="text-amber-700" /> 教學應用建議
+                  </h4>
+                  <div className="space-y-4">
+                    <p className="text-stone-700 text-sm leading-relaxed whitespace-pre-wrap">
+                      {selectedBook.teachingApp}
+                    </p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="mt-20 py-10 border-t border-stone-200 text-center text-stone-400">
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="w-8 h-px bg-stone-200"></div>
+          <BookOpen size={20} className="opacity-50" />
+          <div className="w-8 h-px bg-stone-200"></div>
+        </div>
+        <p className="text-xs tracking-[0.2em] font-light">數位書櫃：視覺化教學資源系統</p>
+        <p className="text-[10px] mt-2 font-mono">Powered by React & Google Sheets</p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
