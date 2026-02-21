@@ -17,23 +17,51 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         
+        /* 平滑滾動與基礎動畫 */
         html { scroll-behavior: smooth; }
+
+        /* 圖片比例 */
         .book-card-aspect { aspect-ratio: 2/3; }
 
+        /* 音樂波紋動畫 */
         .music-bar {
-            width: 2px; height: 12px; background: #fde68a; margin: 0 1px;
-            animation: music-wave 1s ease-in-out infinite; display: inline-block;
+            width: 2px;
+            height: 12px;
+            background: #fde68a;
+            margin: 0 1px;
+            animation: music-wave 1s ease-in-out infinite;
+            display: inline-block;
         }
         .music-bar:nth-child(2) { animation-delay: 0.2s; }
         .music-bar:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes music-wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+        @keyframes music-wave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
 
-        #entrance-overlay { background-image: radial-gradient(circle at center, #1c1917 0%, #0c0a09 100%); }
-        #modal-content-area { scrollbar-gutter: stable; }
-        #modal-content-area::-webkit-scrollbar { width: 10px; }
-        #modal-content-area::-webkit-scrollbar-track { background: #f5f5f4; }
-        #modal-content-area::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 10px; border: 3px solid #f5f5f4; }
-        #modal-content-area::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+        /* 進入頁面覆蓋層 */
+        #entrance-overlay {
+            background-image: radial-gradient(circle at center, #1c1917 0%, #0c0a09 100%);
+        }
+
+        /* 內容滾動條樣式優化 */
+        #modal-content-area {
+            scrollbar-gutter: stable;
+        }
+        #modal-content-area::-webkit-scrollbar {
+            width: 10px;
+        }
+        #modal-content-area::-webkit-scrollbar-track {
+            background: #f5f5f4;
+        }
+        #modal-content-area::-webkit-scrollbar-thumb {
+            background: #d6d3d1;
+            border-radius: 10px;
+            border: 3px solid #f5f5f4;
+        }
+        #modal-content-area::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 transition-colors duration-500 overflow-x-hidden">
@@ -49,17 +77,24 @@
             <span class="relative z-10 text-xl tracking-[0.4em] font-serif group-hover:text-amber-200 transition-colors">開啟書卷，靜心閱讀</span>
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </button>
+        <p class="mt-8 text-stone-600 text-xs tracking-widest animate-pulse italic">點擊開啟沉浸式配樂空間</p>
     </div>
 
+    <!-- 載入中畫面 -->
     <div id="loading-screen" class="fixed inset-0 z-[100] bg-stone-50 hidden flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-stone-200 border-t-stone-800 rounded-full animate-spin mb-4"></div>
         <p class="font-serif tracking-widest text-lg text-stone-600 font-bold italic">墨香渲染中...</p>
     </div>
 
     <!-- 音訊資源 -->
-    <audio id="bg-music" loop preload="auto"><source src="https://cdn.pixabay.com/download/audio/2025/06/06/audio_cd7be0eafc.mp3?filename=tunetank-ambient-piano-music-348968.mp3" type="audio/mpeg"></audio>
-    <audio id="sfx-page" preload="auto"><source src="https://cdn.pixabay.com/download/audio/2025/11/25/audio_26e276330f.mp3?filename=spinopel-turn-the-page-of-a-book-442331.mp3" type="audio/mpeg"></audio>
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2025/06/06/audio_cd7be0eafc.mp3?filename=tunetank-ambient-piano-music-348968.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-page" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2025/11/25/audio_26e276330f.mp3?filename=spinopel-turn-the-page-of-a-book-442331.mp3" type="audio/mpeg">
+    </audio>
 
+    <!-- Hero Section -->
     <section id="hero" class="relative h-[65vh] md:h-[85vh] flex items-center justify-center overflow-hidden bg-stone-900 text-white">
         <div id="hero-image" class="absolute inset-0 opacity-30 bg-cover bg-center blur-sm scale-105 transition-all duration-1000"></div>
         <div class="relative z-10 text-center px-6 max-w-6xl">
@@ -70,7 +105,11 @@
             
             <div class="flex flex-wrap items-center justify-center gap-6">
                 <button id="music-toggle" class="inline-flex items-center gap-3 px-10 py-4 bg-amber-200/10 hover:bg-amber-200/20 backdrop-blur-md border border-amber-200/30 rounded-full text-sm md:text-lg tracking-[0.2em] transition-all hover:scale-105 active:scale-95 group">
-                    <div id="music-bars" class="hidden flex items-end h-5"><span class="music-bar"></span><span class="music-bar"></span><span class="music-bar"></span></div>
+                    <div id="music-bars" class="hidden flex items-end h-5">
+                        <span class="music-bar"></span>
+                        <span class="music-bar"></span>
+                        <span class="music-bar"></span>
+                    </div>
                     <i id="music-icon" data-lucide="music" class="w-5 h-5 text-amber-200"></i>
                     <span id="music-text">暫停音樂</span>
                 </button>
@@ -78,14 +117,21 @@
         </div>
     </section>
 
+    <!-- 控制列 -->
     <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm">
         <div class="max-w-[1600px] mx-auto flex flex-col gap-4 p-4 md:p-8">
             <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
                 <div class="relative w-full md:w-[500px]">
                     <i data-lucide="search" class="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 w-6 h-6"></i>
-                    <input type="text" id="search-input" placeholder="搜尋書名、作者、金句或教學單元..." class="w-full pl-16 pr-6 py-4 bg-stone-100 border-transparent focus:bg-white border focus:border-stone-300 rounded-2xl focus:outline-none transition-all text-base md:text-xl appearance-none shadow-inner">
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="搜尋書名、作者、金句或教學單元..."
+                        class="w-full pl-16 pr-6 py-4 bg-stone-100 border-transparent focus:bg-white border focus:border-stone-300 rounded-2xl focus:outline-none transition-all text-base md:text-xl appearance-none shadow-inner"
+                    >
                 </div>
             </div>
+            
             <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
                 <i data-lucide="filter" class="text-stone-400 flex-shrink-0 w-5 h-5 mr-2 hidden md:block"></i>
                 <div id="filter-container" class="flex gap-4"></div>
@@ -93,6 +139,7 @@
         </div>
     </div>
 
+    <!-- 書籍網格 -->
     <main class="max-w-[1600px] mx-auto px-6 mt-10 mb-32">
         <div id="book-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8 md:gap-16"></div>
         <div id="empty-state" class="hidden py-40 text-center text-stone-400">
@@ -105,121 +152,94 @@
     <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 md:p-2 lg:p-4">
         <div id="modal-overlay" class="absolute inset-0 bg-stone-900/95 backdrop-blur-2xl"></div>
         
+        <!-- Modal 容器：手機版為 flex-col (直向), 電腦版為 flex-row (橫向) -->
         <div class="relative bg-white w-full h-full md:w-[98vw] md:h-[96vh] md:rounded-[3rem] overflow-hidden shadow-[0_0_120px_rgba(0,0,0,0.6)] animate-in zoom-in-95 duration-500 flex flex-col md:flex-row">
             
-            <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 z-[60] p-3 md:p-5 bg-stone-900/40 hover:bg-stone-900/60 md:bg-stone-900/20 md:hover:bg-stone-900/40 rounded-full text-white backdrop-blur-xl transition-all shadow-2xl">
+            <!-- 關閉按鈕：手機版縮小並調整位置 -->
+            <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-3 md:p-5 bg-stone-900/40 hover:bg-stone-900/60 md:bg-stone-900/20 md:hover:bg-stone-900/40 rounded-full text-white backdrop-blur-xl transition-all shadow-2xl">
                 <i data-lucide="x" class="w-6 h-6 md:w-12 md:h-12"></i>
             </button>
             
-            <div class="relative w-full h-[30vh] md:h-full md:w-[35%] bg-stone-200 flex-shrink-0 transition-all duration-300" id="modal-left-panel">
+            <!-- 左側封面圖 / 手機版上方 Banner -->
+            <!-- 手機版: 高度 30vh, 電腦版: 寬度 35% -->
+            <div class="relative w-full h-[30vh] md:h-full md:w-[35%] bg-stone-200 flex-shrink-0">
+                <!-- 手機版的上方漸層陰影，確保關閉按鈕即使在明亮的圖片上也能看清楚 -->
                 <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-stone-900/60 to-transparent md:hidden z-10 pointer-events-none"></div>
                 <img id="modal-cover" src="" alt="" class="w-full h-full object-cover object-top md:object-center shadow-2xl relative z-0">
             </div>
 
-            <div id="modal-content-area" class="w-full flex-1 md:w-[65%] md:h-full p-6 md:p-24 overflow-y-auto bg-stone-50 transition-all duration-300 relative">
-                
-                <div id="original-modal-content">
-                    <div class="mb-10 md:mb-20">
-                        <span id="modal-unit" class="text-amber-600 text-sm md:text-2xl font-bold tracking-[0.4em] uppercase mb-4 md:mb-6 block"></span>
-                        <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-4 md:mb-6 leading-[1.2]"></h2>
-                        <div class="flex flex-wrap items-center gap-6 md:gap-12 text-stone-400 text-sm md:text-3xl font-light mb-8 md:mb-10">
-                            <span class="flex items-center gap-2 md:gap-4"><i data-lucide="user" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-author" class="text-stone-600"></span></span>
-                            <span class="flex items-center gap-2 md:gap-4"><i data-lucide="calendar" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
-                        </div>
-
-                        <!-- 深度導讀按鈕區塊 -->
-                        <div id="modal-deep-dive-container" class="hidden">
-                            <button id="modal-deep-dive-btn" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
-                                <i data-lucide="external-link" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
-                                閱讀深度解析 (Google Doc)
-                            </button>
-                        </div>
+            <!-- 右側內容區塊 / 手機版下方內容 -->
+            <!-- 手機版: flex-1 填滿剩餘空間 (解決 h-full 導致的滾動溢出問題) -->
+            <div id="modal-content-area" class="w-full flex-1 md:w-[65%] md:h-full p-6 md:p-24 overflow-y-auto bg-stone-50">
+                <div class="mb-10 md:mb-20">
+                    <span id="modal-unit" class="text-amber-600 text-sm md:text-2xl font-bold tracking-[0.4em] uppercase mb-4 md:mb-6 block"></span>
+                    <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-4 md:mb-6 leading-[1.2]"></h2>
+                    <div class="flex flex-wrap items-center gap-6 md:gap-12 text-stone-400 text-sm md:text-3xl font-light mb-8 md:mb-10">
+                        <span class="flex items-center gap-2 md:gap-4"><i data-lucide="user" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-author" class="text-stone-600"></span></span>
+                        <span class="flex items-center gap-2 md:gap-4"><i data-lucide="calendar" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
                     </div>
 
-                    <div class="space-y-16 md:space-y-32 text-stone-700 pb-12 md:pb-20">
-                        <div class="relative p-8 md:p-24 bg-white rounded-3xl md:rounded-[4rem] border-l-[12px] md:border-l-[24px] border-stone-800 shadow-2xl italic group overflow-hidden">
-                            <i data-lucide="quote" class="absolute -top-6 -left-6 md:-top-12 md:-left-10 text-stone-50 w-32 h-32 md:w-64 md:h-64 opacity-60"></i>
-                            <p id="modal-quote" class="leading-[1.6] font-serif text-xl md:text-4xl relative z-10 text-stone-800"></p>
-                        </div>
+                    <!-- 深度導讀按鈕區塊 -->
+                    <div id="modal-deep-dive-container" class="hidden">
+                        <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
+                            <i data-lucide="external-link" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
+                            閱讀深度導讀
+                        </a>
+                    </div>
+                </div>
+
+                <div class="space-y-16 md:space-y-32 text-stone-700 pb-12 md:pb-20">
+                    <div class="relative p-8 md:p-24 bg-white rounded-3xl md:rounded-[4rem] border-l-[12px] md:border-l-[24px] border-stone-800 shadow-2xl italic group overflow-hidden">
+                        <i data-lucide="quote" class="absolute -top-6 -left-6 md:-top-12 md:-left-10 text-stone-50 w-32 h-32 md:w-64 md:h-64 opacity-60"></i>
+                        <p id="modal-quote" class="leading-[1.6] font-serif text-xl md:text-4xl relative z-10 text-stone-800"></p>
+                    </div>
+
+                    <section>
+                        <h4 class="flex items-center gap-4 md:gap-6 text-stone-900 font-bold mb-6 md:mb-10 border-b-4 border-stone-200 pb-4 md:pb-6 text-xl md:text-4xl">
+                            <i data-lucide="sparkles" class="text-amber-500 w-6 h-6 md:w-14 md:h-14"></i> 核心論點
+                        </h4>
+                        <p id="modal-argument" class="text-lg md:text-3xl leading-[2] text-stone-600 font-light"></p>
+                    </section>
+
+                    <div class="space-y-12 md:space-y-24">
                         <section>
-                            <h4 class="flex items-center gap-4 md:gap-6 text-stone-900 font-bold mb-6 md:mb-10 border-b-4 border-stone-200 pb-4 md:pb-6 text-xl md:text-4xl">
-                                <i data-lucide="sparkles" class="text-amber-500 w-6 h-6 md:w-14 md:h-14"></i> 核心論點
-                            </h4>
-                            <p id="modal-argument" class="text-lg md:text-3xl leading-[2] text-stone-600 font-light"></p>
+                            <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">理論架構 / 研究方法</h4>
+                            <p id="modal-framework" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
                         </section>
-                        <div class="space-y-12 md:space-y-24">
-                            <section>
-                                <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">理論架構 / 研究方法</h4>
-                                <p id="modal-framework" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
-                            </section>
-                            <section>
-                                <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">學術定位</h4>
-                                <p id="modal-position" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
-                            </section>
-                        </div>
-                        <section class="bg-amber-50 p-8 md:p-24 rounded-3xl md:rounded-[4rem] border border-amber-100 shadow-inner">
-                            <h4 class="flex items-center gap-4 md:gap-8 text-amber-900 font-bold mb-6 md:mb-12 text-2xl md:text-5xl">
-                                <i data-lucide="graduation-cap" class="text-amber-700 w-8 h-8 md:w-20 md:h-20"></i> 教學應用建議
-                            </h4>
-                            <p id="modal-teaching" class="text-lg md:text-3xl leading-[2] whitespace-pre-wrap text-stone-800 font-normal"></p>
+                        <section>
+                            <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">學術定位</h4>
+                            <p id="modal-position" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
                         </section>
                     </div>
+
+                    <section class="bg-amber-50 p-8 md:p-24 rounded-3xl md:rounded-[4rem] border border-amber-100 shadow-inner">
+                        <h4 class="flex items-center gap-4 md:gap-8 text-amber-900 font-bold mb-6 md:mb-12 text-2xl md:text-5xl">
+                            <i data-lucide="graduation-cap" class="text-amber-700 w-8 h-8 md:w-20 md:h-20"></i> 教學應用建議
+                        </h4>
+                        <p id="modal-teaching" class="text-lg md:text-3xl leading-[2] whitespace-pre-wrap text-stone-800 font-normal"></p>
+                    </section>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- 【新增】防呆提示彈窗 (攔截 GAS 衝突用) -->
-    <div id="gas-warning-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" id="gas-warning-overlay"></div>
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 animate-in zoom-in-95 duration-200">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="bg-amber-100 p-3 rounded-full text-amber-600">
-                    <i data-lucide="alert-triangle" class="w-8 h-8"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-stone-800 font-serif">即將前往深度解析</h3>
-            </div>
-            <p class="text-stone-600 mb-6 leading-relaxed text-lg">
-                這是一份 Google Apps Script 文件。如果點擊後出現<strong class="text-red-500">「無法開啟檔案」</strong>的錯誤畫面，通常是因為您的瀏覽器登入了多個 Google 帳號產生衝突。
-            </p>
-            <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 mb-8 text-stone-600 text-sm space-y-2">
-                <p>💡 <span class="font-bold">解決建議：</span></p>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>建議使用 <strong>無痕視窗</strong> 開啟</li>
-                    <li>或點擊下方按鈕複製網址，貼到 <strong>LINE</strong> 裡面開啟</li>
-                </ul>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button id="btn-copy-link" class="flex-1 flex justify-center items-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition-colors">
-                    <i data-lucide="copy" class="w-5 h-5"></i> 複製連結
-                </button>
-                <button id="btn-proceed" class="flex-1 flex justify-center items-center gap-2 py-3 px-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl font-bold transition-colors">
-                    直接前往 <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <button id="btn-cancel-warning" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- 成功複製吐司提示 -->
-    <div id="toast-copy" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-stone-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-[110] flex items-center gap-2 font-bold">
-        <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i> 已複製連結！請至 LINE 或無痕視窗貼上。
     </div>
 
     <button id="back-to-top" class="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-30 p-4 md:p-6 bg-stone-800 text-white rounded-full shadow-2xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none hover:bg-stone-700">
         <i data-lucide="arrow-up" class="w-8 h-8 md:w-10 md:h-10"></i>
     </button>
 
+    <footer class="py-20 md:py-40 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
+        <div class="flex flex-col items-center gap-8 md:gap-12">
+            <p class="text-sm md:text-lg tracking-[0.5em] font-light uppercase">數位書櫃：視覺化教學資源系統</p>
+        </div>
+    </footer>
+
     <script>
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_cqaP-vZr1MW-RYFmbWsCD9FKEwRDXq8lHjI12Sl5z0VwfnvQgurnhE3PDVXrK1cqMRhaMLKVx9XG/pub?gid=1650364862&single=true&output=csv";
         
         let allBooks = [];
-        let currentFilter = '全部';
+        // 改用 Set 來儲存多選的類別
+        let selectedCategories = new Set(); 
         let currentSearch = '';
-        let pendingGasUrl = ''; // 用來暫存要開啟的網址
 
         const bgMusic = document.getElementById('bg-music');
         const pageSfx = document.getElementById('sfx-page');
@@ -234,26 +254,45 @@
 
         function robustCSVParse(text) {
             const rows = [];
-            let currentField = ''; let currentRow = []; let inQuotes = false;
+            let currentField = '';
+            let currentRow = [];
+            let inQuotes = false;
             const normalizedText = text.replace(/\r\n/g, '\n');
 
             for (let i = 0; i < normalizedText.length; i++) {
-                const char = normalizedText[i]; const nextChar = normalizedText[i + 1];
+                const char = normalizedText[i];
+                const nextChar = normalizedText[i + 1];
+
                 if (inQuotes) {
-                    if (char === '"' && nextChar === '"') { currentField += '"'; i++; } 
-                    else if (char === '"') { inQuotes = false; } 
-                    else { currentField += char; }
+                    if (char === '"' && nextChar === '"') {
+                        currentField += '"'; i++;
+                    } else if (char === '"') {
+                        inQuotes = false;
+                    } else {
+                        currentField += char;
+                    }
                 } else {
-                    if (char === '"') { inQuotes = true; } 
-                    else if (char === ',') { currentRow.push(currentField); currentField = ''; } 
-                    else if (char === '\n') {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
                         currentRow.push(currentField);
-                        if (currentRow.length > 1 || currentRow[0] !== '') { rows.push(currentRow); }
-                        currentRow = []; currentField = '';
-                    } else { currentField += char; }
+                        currentField = '';
+                    } else if (char === '\n') {
+                        currentRow.push(currentField);
+                        if (currentRow.length > 1 || currentRow[0] !== '') {
+                            rows.push(currentRow);
+                        }
+                        currentRow = [];
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
                 }
             }
-            if (currentRow.length > 0 || currentField !== '') { currentRow.push(currentField); rows.push(currentRow); }
+            if (currentRow.length > 0 || currentField !== '') {
+                currentRow.push(currentField);
+                rows.push(currentRow);
+            }
             return rows.slice(1);
         }
 
@@ -264,6 +303,7 @@
                 const text = await response.text();
                 const data = robustCSVParse(text);
 
+                // 確保這裡讀取到第 13 欄（陣列索引 12，為 M 欄位「所屬分類」）
                 allBooks = data.map((row, index) => ({
                     id: index,
                     title: row[0] || '未知書名',
@@ -276,10 +316,13 @@
                     teachingUnit: row[7] || '未分類',
                     teachingApp: row[8] || '',
                     cover: row[9] || 'https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400',
-                    deepDive: row[10] || '' 
+                    deepDive: row[10] || '', // 讀取網址
+                    category: row[12] || '未分類' // M欄位：所屬分類
                 }));
 
-                setupHero(); setupFilters(); renderBooks();
+                setupHero();
+                setupFilters();
+                renderBooks();
                 document.getElementById('loading-screen').classList.add('hidden');
             } catch (error) {
                 console.error("Data Fetch Error:", error);
@@ -309,24 +352,71 @@
             document.getElementById('hero-book').textContent = `—— 《${randomBook.title}》`;
         }
 
+        // 更新篩選器：改為使用 M欄位 (category) 並支援多選 (Checkboxes 行為)
         function setupFilters() {
-            const units = ['全部', ...new Set(allBooks.flatMap(b => b.teachingUnit.split(/[、,，]/).map(u => u.trim())).filter(u => u))];
+            // 取得所有不重複的分類
+            const categories = [...new Set(allBooks.flatMap(b => b.category.split(/[、,，]/).map(c => c.trim())).filter(c => c))];
             const container = document.getElementById('filter-container');
             container.innerHTML = ''; 
-            units.forEach(unit => {
+            
+            // 產生「全部」按鈕
+            const btnAll = document.createElement('button');
+            btnAll.className = `filter-btn px-6 py-2 md:px-8 md:py-4 rounded-full text-sm md:text-base whitespace-nowrap transition-all border flex items-center gap-2 ${selectedCategories.size === 0 ? 'bg-stone-800 text-white border-stone-800 shadow-xl' : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50 active:scale-95'}`;
+            btnAll.innerHTML = `<i data-lucide="layout-grid" class="w-4 h-4 md:w-5 md:h-5"></i> 全部`;
+            btnAll.onclick = () => {
+                selectedCategories.clear();
+                updateFilterUI();
+                renderBooks();
+            };
+            container.appendChild(btnAll);
+
+            // 產生各分類的勾選按鈕
+            categories.forEach(cat => {
+                if(cat === '未分類' && categories.length > 1) return; // 隱藏未分類(可選)
+
                 const btn = document.createElement('button');
-                btn.className = `filter-btn px-8 py-4 rounded-full text-base whitespace-nowrap transition-all border ${unit === '全部' ? 'bg-stone-800 text-white border-stone-800 shadow-xl' : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50 active:scale-95'}`;
-                btn.textContent = unit;
+                btn.className = `filter-btn px-6 py-2 md:px-8 md:py-4 rounded-full text-sm md:text-base whitespace-nowrap transition-all border flex items-center gap-2 ${selectedCategories.has(cat) ? 'bg-stone-800 text-white border-stone-800 shadow-xl' : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50 active:scale-95'}`;
+                btn.dataset.category = cat;
+                
+                // 模擬 Checkbox 的視覺小圓圈與打勾圖示
+                const indicatorHTML = `<div class="w-4 h-4 rounded-full border flex items-center justify-center transition-colors checkbox-indicator ${selectedCategories.has(cat) ? 'border-white bg-white text-stone-800' : 'border-current'}">
+                    ${selectedCategories.has(cat) ? '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                </div>`;
+                
+                btn.innerHTML = `${indicatorHTML} ${cat}`;
                 btn.onclick = () => {
-                    currentFilter = unit;
-                    document.querySelectorAll('.filter-btn').forEach(b => {
-                        b.classList.remove('bg-stone-800', 'text-white', 'border-stone-800', 'shadow-xl');
-                        b.classList.add('bg-white', 'text-stone-500', 'border-stone-200');
-                    });
-                    btn.classList.add('bg-stone-800', 'text-white', 'border-stone-800', 'shadow-xl');
+                    if (selectedCategories.has(cat)) {
+                        selectedCategories.delete(cat); // 取消勾選
+                    } else {
+                        selectedCategories.add(cat);    // 增加勾選
+                    }
+                    updateFilterUI();
                     renderBooks();
                 };
                 container.appendChild(btn);
+            });
+            initIcons();
+        }
+
+        // 獨立的 UI 更新函式，讓按鈕狀態改變時不需重新建立 DOM
+        function updateFilterUI() {
+            const container = document.getElementById('filter-container');
+            const btns = container.querySelectorAll('.filter-btn');
+            
+            btns.forEach((btn, index) => {
+                if (index === 0) { // "全部" button
+                    btn.className = `filter-btn px-6 py-2 md:px-8 md:py-4 rounded-full text-sm md:text-base whitespace-nowrap transition-all border flex items-center gap-2 ${selectedCategories.size === 0 ? 'bg-stone-800 text-white border-stone-800 shadow-xl' : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50 active:scale-95'}`;
+                } else {
+                    const cat = btn.dataset.category;
+                    const isSelected = selectedCategories.has(cat);
+                    btn.className = `filter-btn px-6 py-2 md:px-8 md:py-4 rounded-full text-sm md:text-base whitespace-nowrap transition-all border flex items-center gap-2 ${isSelected ? 'bg-stone-800 text-white border-stone-800 shadow-xl' : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50 active:scale-95'}`;
+                    
+                    const indicator = btn.querySelector('.checkbox-indicator');
+                    if (indicator) {
+                        indicator.className = `w-4 h-4 rounded-full border flex items-center justify-center transition-colors checkbox-indicator ${isSelected ? 'border-white bg-white text-stone-800' : 'border-current'}`;
+                        indicator.innerHTML = isSelected ? '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>' : '';
+                    }
+                }
             });
         }
 
@@ -334,10 +424,24 @@
             const grid = document.getElementById('book-grid');
             const emptyState = document.getElementById('empty-state');
             grid.innerHTML = '';
+
+            // 將搜尋字串用空白切分，支援多關鍵字搜尋 (例如："英文書名 作者中文名")
+            const searchTerms = currentSearch.toLowerCase().trim().split(/\s+/).filter(t => t);
+
             const filtered = allBooks.filter(book => {
-                const searchStr = (book.title + book.author + book.quote + book.teachingUnit + book.coreArgument).toLowerCase();
-                return searchStr.includes(currentSearch.toLowerCase()) && (currentFilter === '全部' || book.teachingUnit.includes(currentFilter));
+                // 1. 強化搜尋邏輯：將所有相關欄位組合在一起，確保中英文搜尋皆可命中
+                const searchStr = [book.title, book.author, book.quote, book.teachingUnit, book.coreArgument, book.category].join(' ').toLowerCase();
+                // 必須符合「所有」輸入的關鍵字 (AND 邏輯)
+                const matchesSearch = searchTerms.length === 0 || searchTerms.every(term => searchStr.includes(term));
+
+                // 2. 類別勾選過濾邏輯
+                const bookCategories = book.category.split(/[、,，]/).map(c => c.trim());
+                // 如果沒有選任何類別，就顯示全部；否則只要書本包含「任何一個」被選中的類別就顯示
+                const matchesCategory = selectedCategories.size === 0 || bookCategories.some(c => selectedCategories.has(c));
+
+                return matchesSearch && matchesCategory;
             });
+
             if (filtered.length === 0) emptyState.classList.remove('hidden');
             else {
                 emptyState.classList.add('hidden');
@@ -368,7 +472,8 @@
             document.getElementById('modal-title').textContent = book.title;
             document.getElementById('modal-author').textContent = book.author;
             document.getElementById('modal-year').textContent = book.year;
-            document.getElementById('modal-unit').textContent = book.teachingUnit;
+            // 在彈窗上方顯示「類別 | 教學單元」
+            document.getElementById('modal-unit').textContent = (book.category && book.category !== '未分類' ? book.category + ' | ' : '') + book.teachingUnit;
             document.getElementById('modal-quote').textContent = book.quote;
             document.getElementById('modal-argument').textContent = book.coreArgument;
             document.getElementById('modal-framework').textContent = book.framework;
@@ -376,16 +481,12 @@
             document.getElementById('modal-teaching').textContent = book.teachingApp;
             document.getElementById('modal-cover').src = book.cover;
             
+            // 處理深度導讀按鈕顯示邏輯
             const ddContainer = document.getElementById('modal-deep-dive-container');
-            const ddBtn = document.getElementById('modal-deep-dive-btn');
-            
+            const ddLink = document.getElementById('modal-deep-dive-link');
             if (book.deepDive && book.deepDive.trim().startsWith('http')) {
+                ddLink.href = book.deepDive.trim();
                 ddContainer.classList.remove('hidden');
-                ddBtn.onclick = () => {
-                    // 【重點更新】不直接開新分頁，先彈出防呆提示，並記錄網址
-                    pendingGasUrl = book.deepDive.trim();
-                    document.getElementById('gas-warning-modal').classList.remove('hidden');
-                };
             } else {
                 ddContainer.classList.add('hidden');
             }
@@ -401,35 +502,6 @@
             document.getElementById('modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-
-        // --- 防呆提示彈窗邏輯 ---
-        const hideWarningModal = () => document.getElementById('gas-warning-modal').classList.add('hidden');
-        
-        document.getElementById('btn-cancel-warning').onclick = hideWarningModal;
-        document.getElementById('gas-warning-overlay').onclick = hideWarningModal;
-        
-        // 直接前往按鈕
-        document.getElementById('btn-proceed').onclick = () => {
-            window.open(pendingGasUrl, '_blank');
-            hideWarningModal();
-        };
-
-        // 複製連結按鈕
-        document.getElementById('btn-copy-link').onclick = () => {
-            const tempInput = document.createElement("input");
-            tempInput.value = pendingGasUrl;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            
-            // 顯示成功 Toast
-            const toast = document.getElementById('toast-copy');
-            toast.classList.remove('opacity-0');
-            setTimeout(() => toast.classList.add('opacity-0'), 3000);
-            hideWarningModal();
-        };
-        // -------------------------
 
         musicToggle.onclick = () => {
             if (!isPlaying) {
