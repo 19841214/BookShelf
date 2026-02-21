@@ -77,7 +77,16 @@
             <span class="relative z-10 text-xl tracking-[0.4em] font-serif group-hover:text-amber-200 transition-colors">開啟書卷，靜心閱讀</span>
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
         </button>
-        <p class="mt-8 text-stone-600 text-xs tracking-widest animate-pulse italic">點擊開啟沉浸式配樂空間</p>
+        
+        <div class="mt-8 flex flex-col items-center gap-5">
+            <p class="text-stone-600 text-xs tracking-widest animate-pulse italic">點擊開啟沉浸式配樂空間</p>
+            
+            <!-- 新增：複製網址與無痕模式提示按鈕 -->
+            <button id="copy-link-btn" class="flex items-center gap-2 text-stone-400 hover:text-amber-200 transition-colors text-xs md:text-sm font-light tracking-widest border border-stone-800 hover:border-amber-200/50 rounded-full px-6 py-2.5 bg-stone-900/50 backdrop-blur-sm active:scale-95">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span id="copy-link-text">複製網址 (若資料未更新，建議以無痕模式開啟)</span>
+            </button>
+        </div>
     </div>
 
     <!-- 載入中畫面 -->
@@ -219,6 +228,31 @@
                         <p id="modal-teaching" class="text-lg md:text-3xl leading-[2] whitespace-pre-wrap text-stone-800 font-normal"></p>
                     </section>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增：外部連結提示彈窗 (防 LINE 白畫面/無痕提示) -->
+    <div id="external-link-modal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 md:p-0">
+        <div id="external-link-overlay" class="absolute inset-0 bg-stone-900/80 backdrop-blur-sm"></div>
+        <div class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 text-center">
+            <i data-lucide="alert-circle" class="w-16 h-16 text-amber-500 mx-auto mb-6"></i>
+            <h3 class="text-2xl font-serif font-bold text-stone-900 mb-4">即將開啟外部導讀</h3>
+            <p class="text-stone-600 text-sm md:text-base mb-8 leading-relaxed">
+                若您目前使用 <strong class="text-stone-900">LINE</strong> 等內建瀏覽器，可能會遇到無法正常載入的問題。<br><br>
+                建議您點擊 <strong class="text-amber-600">複製網址</strong>，並切換至 Safari / Chrome 的<strong class="text-amber-600">無痕模式</strong>開啟，以獲得最佳閱讀體驗。
+            </p>
+            <div class="flex flex-col gap-4">
+                <button id="btn-copy-deep-link" class="w-full py-4 bg-amber-100 text-amber-800 font-bold rounded-2xl hover:bg-amber-200 transition-colors flex items-center justify-center gap-3 text-lg">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                    <span>複製導讀網址</span>
+                </button>
+                <button id="btn-continue-link" class="w-full py-4 bg-stone-800 text-white font-bold rounded-2xl hover:bg-stone-700 transition-colors text-lg">
+                    仍要直接開啟
+                </button>
+                <button id="btn-cancel-link" class="w-full py-3 text-stone-400 hover:text-stone-600 font-bold rounded-2xl transition-colors mt-2">
+                    取消
+                </button>
             </div>
         </div>
     </div>
@@ -485,7 +519,12 @@
             const ddContainer = document.getElementById('modal-deep-dive-container');
             const ddLink = document.getElementById('modal-deep-dive-link');
             if (book.deepDive && book.deepDive.trim().startsWith('http')) {
-                ddLink.href = book.deepDive.trim();
+                // 移除原有的 href 直接跳轉，改為觸發提示彈窗
+                ddLink.href = "javascript:void(0);";
+                ddLink.onclick = (e) => {
+                    e.preventDefault();
+                    showExternalLinkAlert(book.deepDive.trim());
+                };
                 ddContainer.classList.remove('hidden');
             } else {
                 ddContainer.classList.add('hidden');
@@ -495,6 +534,67 @@
             document.body.style.overflow = 'hidden';
             document.getElementById('modal-content-area').scrollTop = 0;
             initIcons();
+        }
+
+        // 新增：顯示外部連結提示彈窗的邏輯
+        function showExternalLinkAlert(url) {
+            const modal = document.getElementById('external-link-modal');
+            modal.classList.remove('hidden');
+            
+            const btnCopy = document.getElementById('btn-copy-deep-link');
+            const btnContinue = document.getElementById('btn-continue-link');
+            const btnCancel = document.getElementById('btn-cancel-link');
+            const overlay = document.getElementById('external-link-overlay');
+            
+            // 移除舊的事件監聽器，避免重複綁定
+            const newBtnCopy = btnCopy.cloneNode(true);
+            const newBtnContinue = btnContinue.cloneNode(true);
+            const newBtnCancel = btnCancel.cloneNode(true);
+            const newOverlay = overlay.cloneNode(true);
+            
+            btnCopy.replaceWith(newBtnCopy);
+            btnContinue.replaceWith(newBtnContinue);
+            btnCancel.replaceWith(newBtnCancel);
+            overlay.replaceWith(newOverlay);
+            
+            const closeAlert = () => modal.classList.add('hidden');
+            
+            newBtnCancel.onclick = closeAlert;
+            newOverlay.onclick = closeAlert;
+            
+            newBtnContinue.onclick = () => {
+                window.open(url, '_blank');
+                closeAlert();
+            };
+            
+            newBtnCopy.onclick = () => {
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const span = newBtnCopy.querySelector('span');
+                    const originalText = span.textContent;
+                    span.textContent = "✨ 網址已複製！";
+                    newBtnCopy.classList.remove('bg-amber-100', 'text-amber-800');
+                    newBtnCopy.classList.add('bg-green-100', 'text-green-800');
+                    setTimeout(() => { 
+                        span.textContent = originalText;
+                        newBtnCopy.classList.add('bg-amber-100', 'text-amber-800');
+                        newBtnCopy.classList.remove('bg-green-100', 'text-green-800');
+                        closeAlert();
+                    }, 2000);
+                } catch (err) {
+                    console.error('複製失敗', err);
+                    alert("複製失敗，請手動複製");
+                }
+                document.body.removeChild(textArea);
+            };
+            
+            initIcons(); // 重新渲染 modal 內的 icon
         }
 
         function closeModal() {
@@ -523,6 +623,40 @@
         document.getElementById('modal-close').onclick = closeModal;
         document.getElementById('modal-overlay').onclick = closeModal;
         document.getElementById('search-input').oninput = (e) => { currentSearch = e.target.value; renderBooks(); };
+
+        // 複製網址按鈕邏輯
+        document.getElementById('copy-link-btn').onclick = (e) => {
+            e.stopPropagation(); // 避免觸發到其他背景點擊事件
+            const url = window.location.href;
+            const copyTextSpan = document.getElementById('copy-link-text');
+            const originalText = "複製網址 (若資料未更新，建議以無痕模式開啟)";
+            
+            // 建立暫時的 textarea 來執行複製 (相容性較好，確保在各種環境都能運作)
+            const textArea = document.createElement("textarea");
+            textArea.value = url;
+            // 確保元素不在畫面上造成突兀閃爍
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                copyTextSpan.textContent = "✨ 網址已成功複製！";
+                copyTextSpan.classList.add('text-amber-200');
+                
+                // 2.5秒後恢復原狀
+                setTimeout(() => { 
+                    copyTextSpan.textContent = originalText; 
+                    copyTextSpan.classList.remove('text-amber-200');
+                }, 2500);
+            } catch (err) {
+                console.error('複製失敗', err);
+                copyTextSpan.textContent = "複製失敗，請手動複製上方網址列";
+                setTimeout(() => { copyTextSpan.textContent = originalText; }, 2500);
+            }
+            document.body.removeChild(textArea);
+        };
 
         document.body.style.overflow = 'hidden';
         window.onload = initIcons;
