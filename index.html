@@ -152,76 +152,84 @@
     <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 md:p-2 lg:p-4">
         <div id="modal-overlay" class="absolute inset-0 bg-stone-900/95 backdrop-blur-2xl"></div>
         
+        <!-- Modal 容器：手機版為 flex-col (直向), 電腦版為 flex-row (橫向) -->
         <div class="relative bg-white w-full h-full md:w-[98vw] md:h-[96vh] md:rounded-[3rem] overflow-hidden shadow-[0_0_120px_rgba(0,0,0,0.6)] animate-in zoom-in-95 duration-500 flex flex-col md:flex-row">
             
-            <button id="modal-close" class="absolute top-6 right-6 z-50 p-5 bg-stone-900/20 hover:bg-stone-900/40 rounded-full text-white backdrop-blur-xl transition-all shadow-2xl">
-                <i data-lucide="x" class="w-8 h-8 md:w-12 md:h-12"></i>
+            <!-- 關閉按鈕：手機版縮小並調整位置 -->
+            <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-3 md:p-5 bg-stone-900/40 hover:bg-stone-900/60 md:bg-stone-900/20 md:hover:bg-stone-900/40 rounded-full text-white backdrop-blur-xl transition-all shadow-2xl">
+                <i data-lucide="x" class="w-6 h-6 md:w-12 md:h-12"></i>
             </button>
             
-            <div class="w-full h-[25%] md:h-full md:w-[35%] bg-stone-200 flex-shrink-0">
-                <img id="modal-cover" src="" alt="" class="w-full h-full object-cover shadow-2xl">
+            <!-- 左側封面圖 / 手機版上方 Banner -->
+            <!-- 手機版: 高度 30vh, 電腦版: 寬度 35% -->
+            <div class="relative w-full h-[30vh] md:h-full md:w-[35%] bg-stone-200 flex-shrink-0">
+                <!-- 手機版的上方漸層陰影，確保關閉按鈕即使在明亮的圖片上也能看清楚 -->
+                <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-stone-900/60 to-transparent md:hidden z-10 pointer-events-none"></div>
+                <img id="modal-cover" src="" alt="" class="w-full h-full object-cover object-top md:object-center shadow-2xl relative z-0">
             </div>
 
-            <div id="modal-content-area" class="w-full md:w-[65%] h-full p-8 md:p-24 overflow-y-auto bg-stone-50">
-                <div class="mb-12 md:mb-20">
-                    <span id="modal-unit" class="text-amber-600 text-sm md:text-2xl font-bold tracking-[0.4em] uppercase mb-6 block"></span>
-                    <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-6 leading-[1.2]"></h2>
-                    <div class="flex flex-wrap items-center gap-12 text-stone-400 text-base md:text-3xl font-light mb-10">
-                        <span class="flex items-center gap-4"><i data-lucide="user" class="w-6 h-6 md:w-10 md:h-10 opacity-30"></i> <span id="modal-author" class="text-stone-600"></span></span>
-                        <span class="flex items-center gap-4"><i data-lucide="calendar" class="w-6 h-6 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
+            <!-- 右側內容區塊 / 手機版下方內容 -->
+            <!-- 手機版: flex-1 填滿剩餘空間 (解決 h-full 導致的滾動溢出問題) -->
+            <div id="modal-content-area" class="w-full flex-1 md:w-[65%] md:h-full p-6 md:p-24 overflow-y-auto bg-stone-50">
+                <div class="mb-10 md:mb-20">
+                    <span id="modal-unit" class="text-amber-600 text-sm md:text-2xl font-bold tracking-[0.4em] uppercase mb-4 md:mb-6 block"></span>
+                    <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-4 md:mb-6 leading-[1.2]"></h2>
+                    <div class="flex flex-wrap items-center gap-6 md:gap-12 text-stone-400 text-sm md:text-3xl font-light mb-8 md:mb-10">
+                        <span class="flex items-center gap-2 md:gap-4"><i data-lucide="user" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-author" class="text-stone-600"></span></span>
+                        <span class="flex items-center gap-2 md:gap-4"><i data-lucide="calendar" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
                     </div>
 
                     <!-- 深度導讀按鈕區塊 -->
                     <div id="modal-deep-dive-container" class="hidden">
-                        <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-4 px-8 py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-2xl text-lg md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
-                            <i data-lucide="external-link" class="w-6 h-6 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
+                        <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
+                            <i data-lucide="external-link" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
                             閱讀深度導讀
                         </a>
                     </div>
                 </div>
 
-                <div class="space-y-20 md:space-y-32 text-stone-700 pb-20">
-                    <div class="relative p-10 md:p-24 bg-white rounded-[4rem] border-l-[24px] border-stone-800 shadow-2xl italic group overflow-hidden">
-                        <i data-lucide="quote" class="absolute -top-12 -left-10 text-stone-50 w-48 h-48 md:w-64 md:h-64 opacity-60"></i>
-                        <p id="modal-quote" class="leading-[1.6] font-serif text-2xl md:text-4xl relative z-10 text-stone-800"></p>
+                <div class="space-y-16 md:space-y-32 text-stone-700 pb-12 md:pb-20">
+                    <div class="relative p-8 md:p-24 bg-white rounded-3xl md:rounded-[4rem] border-l-[12px] md:border-l-[24px] border-stone-800 shadow-2xl italic group overflow-hidden">
+                        <i data-lucide="quote" class="absolute -top-6 -left-6 md:-top-12 md:-left-10 text-stone-50 w-32 h-32 md:w-64 md:h-64 opacity-60"></i>
+                        <p id="modal-quote" class="leading-[1.6] font-serif text-xl md:text-4xl relative z-10 text-stone-800"></p>
                     </div>
 
                     <section>
-                        <h4 class="flex items-center gap-6 text-stone-900 font-bold mb-10 border-b-4 border-stone-200 pb-6 text-2xl md:text-4xl">
-                            <i data-lucide="sparkles" class="text-amber-500 w-8 h-8 md:w-14 md:h-14"></i> 核心論點
+                        <h4 class="flex items-center gap-4 md:gap-6 text-stone-900 font-bold mb-6 md:mb-10 border-b-4 border-stone-200 pb-4 md:pb-6 text-xl md:text-4xl">
+                            <i data-lucide="sparkles" class="text-amber-500 w-6 h-6 md:w-14 md:h-14"></i> 核心論點
                         </h4>
-                        <p id="modal-argument" class="text-xl md:text-3xl leading-[2] text-stone-600 font-light"></p>
+                        <p id="modal-argument" class="text-lg md:text-3xl leading-[2] text-stone-600 font-light"></p>
                     </section>
 
-                    <div class="space-y-16 md:space-y-24">
+                    <div class="space-y-12 md:space-y-24">
                         <section>
-                            <h4 class="text-stone-900 font-bold mb-8 text-sm md:text-xl uppercase tracking-[0.5em] opacity-30">理論架構 / 研究方法</h4>
-                            <p id="modal-framework" class="text-lg md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-10 md:p-14 rounded-[3rem] border border-stone-200/50"></p>
+                            <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">理論架構 / 研究方法</h4>
+                            <p id="modal-framework" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
                         </section>
                         <section>
-                            <h4 class="text-stone-900 font-bold mb-8 text-sm md:text-xl uppercase tracking-[0.5em] opacity-30">學術定位</h4>
-                            <p id="modal-position" class="text-lg md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-10 md:p-14 rounded-[3rem] border border-stone-200/50"></p>
+                            <h4 class="text-stone-900 font-bold mb-4 md:mb-8 text-xs md:text-xl uppercase tracking-[0.5em] opacity-30">學術定位</h4>
+                            <p id="modal-position" class="text-base md:text-3xl leading-[1.8] text-stone-600 bg-stone-200/40 p-6 md:p-14 rounded-3xl md:rounded-[3rem] border border-stone-200/50"></p>
                         </section>
                     </div>
 
-                    <section class="bg-amber-50 p-12 md:p-24 rounded-[4rem] border border-amber-100 shadow-inner">
-                        <h4 class="flex items-center gap-8 text-amber-900 font-bold mb-12 text-3xl md:text-5xl">
-                            <i data-lucide="graduation-cap" class="text-amber-700 w-12 h-12 md:w-20 md:h-20"></i> 教學應用建議
+                    <section class="bg-amber-50 p-8 md:p-24 rounded-3xl md:rounded-[4rem] border border-amber-100 shadow-inner">
+                        <h4 class="flex items-center gap-4 md:gap-8 text-amber-900 font-bold mb-6 md:mb-12 text-2xl md:text-5xl">
+                            <i data-lucide="graduation-cap" class="text-amber-700 w-8 h-8 md:w-20 md:h-20"></i> 教學應用建議
                         </h4>
-                        <p id="modal-teaching" class="text-xl md:text-3xl leading-[2] whitespace-pre-wrap text-stone-800 font-normal"></p>
+                        <p id="modal-teaching" class="text-lg md:text-3xl leading-[2] whitespace-pre-wrap text-stone-800 font-normal"></p>
                     </section>
                 </div>
             </div>
         </div>
     </div>
 
-    <button id="back-to-top" class="fixed bottom-12 right-12 z-30 p-6 bg-stone-800 text-white rounded-full shadow-2xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none hover:bg-stone-700">
-        <i data-lucide="arrow-up" class="w-10 h-10"></i>
+    <button id="back-to-top" class="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-30 p-4 md:p-6 bg-stone-800 text-white rounded-full shadow-2xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none hover:bg-stone-700">
+        <i data-lucide="arrow-up" class="w-8 h-8 md:w-10 md:h-10"></i>
     </button>
 
-    <footer class="py-40 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
-        <div class="flex flex-col items-center gap-12">
-            <p class="text-lg tracking-[0.5em] font-light uppercase">數位書櫃：視覺化教學資源系統</p>
+    <footer class="py-20 md:py-40 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
+        <div class="flex flex-col items-center gap-8 md:gap-12">
+            <p class="text-sm md:text-lg tracking-[0.5em] font-light uppercase">數位書櫃：視覺化教學資源系統</p>
         </div>
     </footer>
 
