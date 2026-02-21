@@ -104,11 +104,6 @@
             <p id="hero-book" class="text-stone-300 font-light tracking-[0.2em] text-sm md:text-2xl mb-12"></p>
             
             <div class="flex flex-wrap items-center justify-center gap-6">
-                <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="inline-flex items-center gap-3 px-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-sm md:text-lg tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-xl">
-                    <i data-lucide="folder-open" class="w-5 h-5 text-amber-200"></i>
-                    瀏覽資源
-                </a>
-                
                 <button id="music-toggle" class="inline-flex items-center gap-3 px-10 py-4 bg-amber-200/10 hover:bg-amber-200/20 backdrop-blur-md border border-amber-200/30 rounded-full text-sm md:text-lg tracking-[0.2em] transition-all hover:scale-105 active:scale-95 group">
                     <div id="music-bars" class="hidden flex items-end h-5">
                         <span class="music-bar"></span>
@@ -134,13 +129,6 @@
                         placeholder="搜尋書名、作者、金句或教學單元..."
                         class="w-full pl-16 pr-6 py-4 bg-stone-100 border-transparent focus:bg-white border focus:border-stone-300 rounded-2xl focus:outline-none transition-all text-base md:text-xl appearance-none shadow-inner"
                     >
-                </div>
-                
-                <div class="flex items-center gap-10">
-                    <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="hidden md:flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors text-lg font-bold">
-                        <i data-lucide="cloud" class="w-6 h-6 text-stone-300"></i>
-                        雲端資源庫
-                    </a>
                 </div>
             </div>
             
@@ -177,10 +165,18 @@
             <div id="modal-content-area" class="w-full md:w-[65%] h-full p-8 md:p-24 overflow-y-auto bg-stone-50">
                 <div class="mb-12 md:mb-20">
                     <span id="modal-unit" class="text-amber-600 text-sm md:text-2xl font-bold tracking-[0.4em] uppercase mb-6 block"></span>
-                    <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-10 leading-[1.2]"></h2>
-                    <div class="flex flex-wrap items-center gap-12 text-stone-400 text-base md:text-3xl font-light">
+                    <h2 id="modal-title" class="text-3xl md:text-6xl font-serif font-bold text-stone-900 mb-6 leading-[1.2]"></h2>
+                    <div class="flex flex-wrap items-center gap-12 text-stone-400 text-base md:text-3xl font-light mb-10">
                         <span class="flex items-center gap-4"><i data-lucide="user" class="w-6 h-6 md:w-10 md:h-10 opacity-30"></i> <span id="modal-author" class="text-stone-600"></span></span>
                         <span class="flex items-center gap-4"><i data-lucide="calendar" class="w-6 h-6 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
+                    </div>
+
+                    <!-- 深度導讀按鈕區塊 -->
+                    <div id="modal-deep-dive-container" class="hidden">
+                        <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-4 px-8 py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-2xl text-lg md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
+                            <i data-lucide="external-link" class="w-6 h-6 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
+                            閱讀深度導讀
+                        </a>
                     </div>
                 </div>
 
@@ -197,7 +193,6 @@
                         <p id="modal-argument" class="text-xl md:text-3xl leading-[2] text-stone-600 font-light"></p>
                     </section>
 
-                    <!-- 理論架構與學術定位：改為垂直堆疊以適應長文本 -->
                     <div class="space-y-16 md:space-y-24">
                         <section>
                             <h4 class="text-stone-900 font-bold mb-8 text-sm md:text-xl uppercase tracking-[0.5em] opacity-30">理論架構 / 研究方法</h4>
@@ -227,9 +222,6 @@
     <footer class="py-40 border-t border-stone-200 text-center text-stone-400 bg-stone-100/50">
         <div class="flex flex-col items-center gap-12">
             <p class="text-lg tracking-[0.5em] font-light uppercase">數位書櫃：視覺化教學資源系統</p>
-            <a href="https://drive.google.com/drive/folders/1cfsHMrUCWQapSzjw37gOyxsONBopGRdi?usp=sharing" target="_blank" class="text-lg md:text-2xl text-stone-400 hover:text-stone-900 underline underline-offset-8 transition-colors font-medium">
-                完整雲端資源檔案夾
-            </a>
         </div>
     </footer>
 
@@ -302,6 +294,7 @@
                 const text = await response.text();
                 const data = robustCSVParse(text);
 
+                // 確保這裡讀取到第 11 欄（陣列索引 10）
                 allBooks = data.map((row, index) => ({
                     id: index,
                     title: row[0] || '未知書名',
@@ -313,7 +306,8 @@
                     position: row[6] || '',
                     teachingUnit: row[7] || '未分類',
                     teachingApp: row[8] || '',
-                    cover: row[9] || 'https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400'
+                    cover: row[9] || 'https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400',
+                    deepDive: row[10] || '' // 讀取網址
                 }));
 
                 setupHero();
@@ -415,6 +409,16 @@
             document.getElementById('modal-teaching').textContent = book.teachingApp;
             document.getElementById('modal-cover').src = book.cover;
             
+            // 處理深度導讀按鈕顯示邏輯
+            const ddContainer = document.getElementById('modal-deep-dive-container');
+            const ddLink = document.getElementById('modal-deep-dive-link');
+            if (book.deepDive && book.deepDive.trim().startsWith('http')) {
+                ddLink.href = book.deepDive.trim();
+                ddContainer.classList.remove('hidden');
+            } else {
+                ddContainer.classList.add('hidden');
+            }
+
             document.getElementById('modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             document.getElementById('modal-content-area').scrollTop = 0;
