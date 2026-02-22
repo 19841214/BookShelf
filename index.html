@@ -188,16 +188,27 @@
                         <span class="flex items-center gap-2 md:gap-4"><i data-lucide="calendar" class="w-5 h-5 md:w-10 md:h-10 opacity-30"></i> <span id="modal-year" class="text-stone-600"></span></span>
                     </div>
 
-                    <!-- 深度導讀按鈕區塊 -->
-                    <div id="modal-deep-dive-container" class="hidden">
-                        <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
-                            <i data-lucide="external-link" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
-                            閱讀深度導讀
-                        </a>
+                    <!-- 外部連結按鈕區塊 (導讀 & 練習題) -->
+                    <div class="flex flex-wrap gap-4">
+                        <!-- 深度導讀按鈕區塊 -->
+                        <div id="modal-deep-dive-container" class="hidden">
+                            <a id="modal-deep-dive-link" href="#" target="_blank" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-stone-800 hover:bg-stone-700 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
+                                <i data-lucide="external-link" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-200 transition-colors"></i>
+                                閱讀深度導讀
+                            </a>
+                        </div>
+                        
+                        <!-- 練習題按鈕區塊 (新增) -->
+                        <div id="modal-exercise-container" class="hidden">
+                            <a id="modal-exercise-link" href="#" target="_blank" class="inline-flex items-center gap-3 md:gap-4 px-6 md:px-8 py-3 md:py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-xl md:rounded-2xl text-base md:text-2xl font-bold transition-all shadow-xl active:scale-95 group">
+                                <i data-lucide="pen-tool" class="w-5 h-5 md:w-8 md:h-8 group-hover:text-amber-100 transition-colors"></i>
+                                進入練習題
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-16 md:space-y-32 text-stone-700 pb-12 md:pb-20">
+                <div class="space-y-16 md:space-y-32 text-stone-700 pb-12 md:pb-20 mt-10 md:mt-20">
                     <div class="relative p-8 md:p-24 bg-white rounded-3xl md:rounded-[4rem] border-l-[12px] md:border-l-[24px] border-stone-800 shadow-2xl italic group overflow-hidden">
                         <i data-lucide="quote" class="absolute -top-6 -left-6 md:-top-12 md:-left-10 text-stone-50 w-32 h-32 md:w-64 md:h-64 opacity-60"></i>
                         <p id="modal-quote" class="leading-[1.6] font-serif text-xl md:text-4xl relative z-10 text-stone-800"></p>
@@ -237,15 +248,15 @@
         <div id="external-link-overlay" class="absolute inset-0 bg-stone-900/80 backdrop-blur-sm"></div>
         <div class="relative bg-white rounded-[2rem] p-8 md:p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 text-center">
             <i data-lucide="alert-circle" class="w-16 h-16 text-amber-500 mx-auto mb-6"></i>
-            <h3 class="text-2xl font-serif font-bold text-stone-900 mb-4">即將開啟外部導讀</h3>
+            <h3 id="external-link-title" class="text-2xl font-serif font-bold text-stone-900 mb-4">即將開啟外部連結</h3>
             <p class="text-stone-600 text-sm md:text-base mb-8 leading-relaxed">
                 若您目前使用 <strong class="text-stone-900">LINE</strong> 等內建瀏覽器，可能會遇到無法正常載入的問題。<br><br>
-                建議您點擊 <strong class="text-amber-600">複製網址</strong>，並切換至 Safari / Chrome 的<strong class="text-amber-600">無痕模式</strong>開啟，以獲得最佳閱讀體驗。
+                建議您點擊 <strong class="text-amber-600">複製網址</strong>，並切換至 Safari / Chrome 的<strong class="text-amber-600">無痕模式</strong>開啟，以獲得最佳體驗。
             </p>
             <div class="flex flex-col gap-4">
                 <button id="btn-copy-deep-link" class="w-full py-4 bg-amber-100 text-amber-800 font-bold rounded-2xl hover:bg-amber-200 transition-colors flex items-center justify-center gap-3 text-lg">
                     <i data-lucide="copy" class="w-5 h-5"></i>
-                    <span>複製導讀網址</span>
+                    <span>複製網址</span>
                 </button>
                 <button id="btn-continue-link" class="w-full py-4 bg-stone-800 text-white font-bold rounded-2xl hover:bg-stone-700 transition-colors text-lg">
                     仍要直接開啟
@@ -350,7 +361,8 @@
                     teachingUnit: row[7] || '未分類',
                     teachingApp: row[8] || '',
                     cover: row[9] || 'https://images.unsplash.com/photo-1543004218-ee141104975a?auto=format&fit=crop&q=80&w=400',
-                    deepDive: row[10] || '', // 讀取網址
+                    deepDive: row[10] || '', // K欄位：讀取網址
+                    exerciseLink: row[11] || '', // L欄位：練習題連結
                     category: row[12] || '未分類' // M欄位：所屬分類
                 }));
 
@@ -519,15 +531,28 @@
             const ddContainer = document.getElementById('modal-deep-dive-container');
             const ddLink = document.getElementById('modal-deep-dive-link');
             if (book.deepDive && book.deepDive.trim().startsWith('http')) {
-                // 移除原有的 href 直接跳轉，改為觸發提示彈窗
                 ddLink.href = "javascript:void(0);";
                 ddLink.onclick = (e) => {
                     e.preventDefault();
-                    showExternalLinkAlert(book.deepDive.trim());
+                    showExternalLinkAlert(book.deepDive.trim(), "即將開啟外部導讀", "複製導讀網址");
                 };
                 ddContainer.classList.remove('hidden');
             } else {
                 ddContainer.classList.add('hidden');
+            }
+
+            // 處理練習題按鈕顯示邏輯 (新增)
+            const exContainer = document.getElementById('modal-exercise-container');
+            const exLink = document.getElementById('modal-exercise-link');
+            if (book.exerciseLink && book.exerciseLink.trim().startsWith('http')) {
+                exLink.href = "javascript:void(0);";
+                exLink.onclick = (e) => {
+                    e.preventDefault();
+                    showExternalLinkAlert(book.exerciseLink.trim(), "即將開啟練習題", "複製練習題網址");
+                };
+                exContainer.classList.remove('hidden');
+            } else {
+                exContainer.classList.add('hidden');
             }
 
             document.getElementById('modal').classList.remove('hidden');
@@ -536,10 +561,13 @@
             initIcons();
         }
 
-        // 新增：顯示外部連結提示彈窗的邏輯
-        function showExternalLinkAlert(url) {
+        // 修改：讓外部連結提示彈窗可接受自訂標題與按鈕文字，以共用於不同按鈕
+        function showExternalLinkAlert(url, title = "即將開啟外部連結", btnText = "複製網址") {
             const modal = document.getElementById('external-link-modal');
             modal.classList.remove('hidden');
+            
+            // 設定標題
+            document.getElementById('external-link-title').textContent = title;
             
             const btnCopy = document.getElementById('btn-copy-deep-link');
             const btnContinue = document.getElementById('btn-continue-link');
@@ -556,6 +584,10 @@
             btnContinue.replaceWith(newBtnContinue);
             btnCancel.replaceWith(newBtnCancel);
             overlay.replaceWith(newOverlay);
+            
+            // 設定按鈕文字
+            const copySpan = newBtnCopy.querySelector('span');
+            if (copySpan) copySpan.textContent = btnText;
             
             const closeAlert = () => modal.classList.add('hidden');
             
@@ -576,13 +608,11 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    const span = newBtnCopy.querySelector('span');
-                    const originalText = span.textContent;
-                    span.textContent = "✨ 網址已複製！";
+                    copySpan.textContent = "✨ 網址已複製！";
                     newBtnCopy.classList.remove('bg-amber-100', 'text-amber-800');
                     newBtnCopy.classList.add('bg-green-100', 'text-green-800');
                     setTimeout(() => { 
-                        span.textContent = originalText;
+                        copySpan.textContent = btnText; // 恢復原本的文字
                         newBtnCopy.classList.add('bg-amber-100', 'text-amber-800');
                         newBtnCopy.classList.remove('bg-green-100', 'text-green-800');
                         closeAlert();
